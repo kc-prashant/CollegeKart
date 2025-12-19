@@ -103,20 +103,60 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             color: #fff;
         }
 
-        .hero h2 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 15px;
-            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+        /* Bounce word animation */
+        @keyframes bounceInWord {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            70% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
-        .hero p {
+        .bounce-word {
+            display: inline-block;
+            color: #9b59b6;
+            animation: bounceInWord 0.8s forwards;
+        }
+
+        /* Slide-in for paragraph and button */
+        @keyframes slideInUp {
+            0% {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-subtext {
             font-size: 1.2rem;
             margin-bottom: 20px;
+            color: #9b59b6;
             text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            animation: slideInUp 1s ease forwards;
+            animation-delay: 1.8s;
         }
 
         .btn-custom {
+            opacity: 0;
+            animation: slideInUp 1s ease forwards;
+            animation-delay: 2.2s;
             background: linear-gradient(135deg, #ff9800, #ff5722);
             color: #fff;
             border: none;
@@ -136,26 +176,107 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             color: #fff;
         }
 
+        /* Latest Items heading */
+        @keyframes bounceInHeading {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            70% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #latestHeading {
+            display: block;
+            background-color: #00b894;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 1.8rem;
+            font-weight: 600;
+            animation: bounceInHeading 1s forwards;
+            animation-delay: 3s;
+            text-align: center;
+            width: fit-content;
+            margin: 0 auto 20px auto;
+        }
+
+        /* Dark card styles */
+        .items .card {
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            background-color: #1e1e1e;
+            color: #fff;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .items .card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+        }
+
         .items .card img {
             max-height: 200px;
             width: 100%;
             object-fit: contain;
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
-            background: #f8f9fa;
+            background: #2d2d2d;
         }
 
-
-        .items .card {
-            border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            background: #fff;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .items .card .card-title {
+            color: #fff;
         }
 
-        .items .card:hover {
-            transform: scale(1.03);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        .items .card p {
+            color: #dfe6e9;
+        }
+
+        .items .card .btn-success {
+            background-color: #6c5ce7;
+            border: none;
+        }
+
+        .items .card .btn-success:hover {
+            background-color: #a29bfe;
+        }
+
+        .items .card .btn-warning {
+            background-color: #fd79a8;
+            border: none;
+        }
+
+        .items .card .btn-warning:hover {
+            background-color: #ffb6c1;
+        }
+
+        .items .card .btn-danger {
+            background-color: #d63031;
+            border: none;
+        }
+
+        .items .card .btn-danger:hover {
+            background-color: #ff7675;
+        }
+
+        .items .card .btn-primary {
+            background-color: #0984e3;
+            border: none;
+        }
+
+        .items .card .btn-primary:hover {
+            background-color: #74b9ff;
         }
 
         footer {
@@ -171,7 +292,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
 <body>
 
     <header>
-
         <?php if ($userId): ?>
             <div class="profile-container">
                 <div class="profile-icon" onclick="toggleProfile()">👤</div>
@@ -192,12 +312,15 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
                 <a href="auth/signup.php">Sign Up</a>
             <?php endif; ?>
         </nav>
-
     </header>
 
     <section class="hero">
-        <h2>Buy, Sell & Donate</h2>
-        <p>Your one-stop shop for college essentials</p>
+        <h2>
+            <span class="bounce-word" style="animation-delay: 0s;">Buy</span> |
+            <span class="bounce-word" style="animation-delay: 0.5s;">Sell</span> |
+            <span class="bounce-word" style="animation-delay: 1s;">Donate</span>
+        </h2>
+        <p class="hero-subtext">Your one-stop shop for college essentials</p>
 
         <?php if ($userId): ?>
             <a href="add_item.php" class="btn-custom">Start Selling</a>
@@ -208,15 +331,16 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
 
     <!-- Items Section -->
     <div class="container my-5">
-        <h2 class="text-center mb-4">Latest Items</h2>
+        <h2 id="latestHeading" class="text-center mb-4">Latest Items</h2>
+
         <div class="row g-4 items">
             <?php
             $res = mysqli_query($conn, "
-                SELECT items.*, users.name AS seller_name, users.id AS seller_id
-                FROM items
-                JOIN users ON items.seller_id = users.id
-                ORDER BY items.id DESC
-            ");
+    SELECT items.*, users.name AS seller_name, users.id AS seller_id
+    FROM items
+    JOIN users ON items.seller_id = users.id
+    ORDER BY items.id DESC
+");
 
             if ($res && mysqli_num_rows($res) > 0) {
                 while ($p = mysqli_fetch_assoc($res)): ?>
