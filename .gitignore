@@ -1,0 +1,33 @@
+# Ignore node modules if using any frontend packages
+node_modules/
+npm-debug.log
+
+# Ignore Composer dependencies (if you ever use composer)
+vendor/
+composer.lock
+
+# IDE / Editor files
+*.idea/
+*.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+cache/
+
+# Ignore user uploads folder
+uploads/
+
+# Config / secrets
+db.php
+.env
+
+# Backup / swap files
+*.bak
+*.swp
