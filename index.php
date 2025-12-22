@@ -8,7 +8,7 @@ include "db.php";
 
 // Check if user is admin
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
-$userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+$userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['name'] ?? 'User';
 $userEmail = $_SESSION['email'] ?? 'user@email.com';
 ?>
@@ -18,7 +18,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Clz Store - Buy, Sell College Essentials</title>
+    <title>Clz Store - Buy, Sell & Donate College Essentials</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -58,7 +58,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             color: #ffeb3b;
         }
 
-        /* PROFILE */
         .profile-container {
             position: absolute;
             top: 20px;
@@ -103,7 +102,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             color: #fff;
         }
 
-        /* Bounce word animation */
         @keyframes bounceInWord {
             0% {
                 transform: scale(0.3);
@@ -130,7 +128,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             animation: bounceInWord 0.8s forwards;
         }
 
-        /* Slide-in for paragraph and button */
         @keyframes slideInUp {
             0% {
                 transform: translateY(50px);
@@ -176,43 +173,23 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             color: #fff;
         }
 
-        /* Latest Items heading */
-        @keyframes bounceInHeading {
-            0% {
-                transform: scale(0.3);
-                opacity: 0;
-            }
-
-            50% {
-                transform: scale(1.2);
-                opacity: 1;
-            }
-
-            70% {
-                transform: scale(0.9);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
         #latestHeading {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             background-color: #00b894;
             color: #fff;
-            padding: 12px 25px;
+            padding: 12px 20px;
             border-radius: 10px;
             font-size: 1.8rem;
             font-weight: 600;
-            animation: bounceInHeading 1s forwards;
-            animation-delay: 3s;
-            text-align: center;
             width: fit-content;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 10px auto;
+            animation: bounceInWord 1s forwards;
+            animation-delay: 3s;
         }
 
-        /* Dark card styles */
         .items .card {
             border-radius: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -279,6 +256,17 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             background-color: #74b9ff;
         }
 
+        .items .card .btn-get {
+            background-color: #00b894;
+            border: none;
+            color: #fff;
+        }
+
+        .items .card .btn-get:hover {
+            background-color: #55efc4;
+            color: #000;
+        }
+
         footer {
             background: #111;
             color: #fff;
@@ -296,8 +284,12 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             <div class="profile-container">
                 <div class="profile-icon" onclick="toggleProfile()">👤</div>
                 <div class="profile-dropdown" id="profileBox">
-                    <p><strong><?= htmlspecialchars($userName) ?></strong></p>
-                    <p><?= htmlspecialchars($userEmail) ?></p>
+                    <p><strong>
+                            <?= htmlspecialchars($userName) ?>
+                        </strong></p>
+                    <p>
+                        <?= htmlspecialchars($userEmail) ?>
+                    </p>
                     <hr>
                     <a href="auth/logout.php">Logout</a>
                 </div>
@@ -305,7 +297,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         <?php endif; ?>
 
         <h1>Welcome to College Kart 🛒</h1>
-
         <nav>
             <?php if (!$userId): ?>
                 <a href="auth/login.php">Login</a>
@@ -323,71 +314,103 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         <p class="hero-subtext">Your one-stop shop for college essentials</p>
 
         <?php if ($userId): ?>
-            <a href="add_item.php" class="btn-custom">Start Selling</a>
+            <a href="add_item.php" class="btn-custom">Start Donating | Selling </a>
         <?php else: ?>
-            <a href="auth/login.php" class="btn-custom">Login to Start Selling</a>
+            <a href="auth/login.php" class="btn-custom">Login to Start Donating | Selling</a>
         <?php endif; ?>
     </section>
 
-    <!-- Items Section -->
     <div class="container my-5">
-        <h2 id="latestHeading" class="text-center mb-4">Latest Items</h2>
+        <div id="latestHeading">
+            <span>Latest Items</span>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="itemTypeDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Filter
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="itemTypeDropdown">
+                    <li><a class="dropdown-item" href="?type=sell">Selling Items</a></li>
+                    <li><a class="dropdown-item" href="?type=donate">Donated Items</a></li>
+                    <li><a class="dropdown-item" href="?type=all">All Items</a></li>
+                </ul>
+            </div>
+        </div>
 
         <div class="row g-4 items">
             <?php
+            $type = $_GET['type'] ?? 'all';
             $res = mysqli_query($conn, "
-    SELECT items.*, users.name AS seller_name, users.id AS seller_id
-    FROM items
-    JOIN users ON items.seller_id = users.id
-    ORDER BY items.id DESC
-");
-
-            if ($res && mysqli_num_rows($res) > 0) {
-                while ($p = mysqli_fetch_assoc($res)): ?>
+                SELECT items.*, users.name AS seller_name, users.id AS seller_id
+                FROM items
+                JOIN users ON items.seller_id = users.id
+                ORDER BY items.id DESC
+            ");
+            if ($res && mysqli_num_rows($res) > 0):
+                while ($p = mysqli_fetch_assoc($res)):
+                    $isOwner = $userId && ($isAdmin || $userId == $p['seller_id']);
+                    if ($type != 'all' && $p['type'] != $type)
+                        continue;
+                    ?>
                     <div class="col-md-4">
                         <div class="card">
                             <img src="<?= $p['image'] ?>" class="card-img-top" alt="<?= $p['name'] ?>">
                             <div class="card-body">
-                                <h5 class="card-title"><?= $p['name'] ?></h5>
-                                <p class="text-muted mb-1">Price: ₹<?= $p['price'] ?></p>
-                                <p class="small"><?= $p['description'] ?></p>
-                                <p class="small text-muted">Seller: <?= $p['seller_name'] ?></p>
+                                <h5 class="card-title">
+                                    <?= $p['name'] ?>
+                                </h5>
+                                <?php if ($p['type'] === 'sell'): ?>
+                                    <p class="text-muted mb-1">Price: ₹
+                                        <?= $p['price'] ?>
+                                    </p>
+                                <?php else: ?>
+                                    <p class="text-muted mb-1">Available for Donation</p>
+                                <?php endif; ?>
+                                <p class="small">
+                                    <?= $p['description'] ?>
+                                </p>
+                                <p class="small text-muted">Seller:
+                                    <?= $p['seller_name'] ?>
+                                </p>
 
-                                <!-- View Button -->
                                 <a href="product_view.php?id=<?= $p['id'] ?>" class="btn btn-success mt-2 me-2">View</a>
 
-                                <!-- Edit/Delete Buttons -->
-                                <?php if ($userId && ($isAdmin || $userId == $p['seller_id'])): ?>
+                                <?php if ($isOwner): ?>
                                     <a href="edit_item.php?id=<?= $p['id'] ?>" class="btn btn-warning mt-2 me-2">Edit</a>
                                     <a href="delete_item.php?id=<?= $p['id'] ?>" class="btn btn-danger mt-2 me-2"
                                         onclick="return confirm('Are you sure?')">Delete</a>
                                 <?php endif; ?>
 
-                                <!-- Buy Button -->
                                 <?php if ($userId && $userId != $p['seller_id']): ?>
-                                    <form method="post" action="user/buy.php" style="display:inline-block; margin-top:5px;">
+                                    <form method="post" action="user/action.php" style="display:inline-block; margin-top:5px;">
                                         <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
-                                        <button type="submit" class="btn btn-primary mt-2">Buy</button>
+                                        <input type="hidden" name="action_type"
+                                            value="<?= $p['type'] === 'sell' ? 'buy' : 'get' ?>">
+                                        <button type="submit"
+                                            class="btn mt-2 <?= $p['type'] === 'sell' ? 'btn-primary' : 'btn-get' ?>">
+                                            <?= $p['type'] === 'sell' ? 'Buy' : 'Get' ?>
+                                        </button>
                                     </form>
                                 <?php elseif (!$userId): ?>
-                                    <a href="auth/login.php" class="btn btn-primary mt-2">Login to Buy</a>
+                                    <a href="auth/login.php" class="btn btn-primary mt-2">
+                                        <?= $p['type'] === 'sell' ? 'Login to Buy' : 'Login to Get' ?>
+                                    </a>
                                 <?php endif; ?>
-
                             </div>
                         </div>
                     </div>
-                <?php endwhile;
-            } else {
-                echo "<p class='text-center text-muted'>No items found. Be the first to add one!</p>";
-            }
-            ?>
+                <?php endwhile; else: ?>
+                <p class='text-center text-muted'>No items found. Be the first to add one!</p>
+            <?php endif; ?>
         </div>
     </div>
 
     <footer>
-        <p>© <?= date('Y') ?> College Kart | Built by Prashant and Ayush</p>
+        <p>©
+            <?= date('Y') ?> College Kart | Built by Prashant and Ayush
+        </p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleProfile() {
             const box = document.getElementById("profileBox");

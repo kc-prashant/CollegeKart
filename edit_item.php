@@ -3,7 +3,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start(); // start session here
 include 'auth/auth_check.php'; // ensure user is logged in
 include 'db.php'; // include DB connection
 

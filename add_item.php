@@ -11,45 +11,51 @@ include "db.php";
 $error = "";
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['category'], $_POST['price'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['category'], $_POST['price'], $_POST['type'])) {
     $name = trim($_POST['name']);
     $category = trim($_POST['category']);
     $price = floatval($_POST['price']);
     $description = trim($_POST['description']);
+    $type = $_POST['type']; // 'sell' or 'donate'
 
-    if (!empty($_FILES['image']['name'])) {
+    if (!in_array($type, ['sell', 'donate'])) {
+        $error = "Invalid item type selected.";
+    } else {
 
-        // Make uploads folder if it doesn't exist
-        if (!is_dir("uploads")) {
-            mkdir("uploads", 0777, true);
-        }
+        if (!empty($_FILES['image']['name'])) {
 
-        $image = $_FILES['image']['name'];
-        $tmp = $_FILES['image']['tmp_name'];
-        $image_path = "uploads/" . uniqid() . "_" . basename($image);
-
-        if (move_uploaded_file($tmp, $image_path)) {
-
-            // Insert into DB safely
-            $stmt = $conn->prepare("INSERT INTO items (name, category, price, description, image, seller_id) VALUES (?, ?, ?, ?, ?, ?)");
-            $user_id = intval($_SESSION['user_id']);
-            $stmt->bind_param("ssdssi", $name, $category, $price, $description, $image_path, $user_id);
-
-            if ($stmt->execute()) {
-                header("Location: index.php");
-                exit;
-            } else {
-                $error = "Database error: " . $stmt->error;
+            // Make uploads folder if it doesn't exist
+            if (!is_dir("uploads")) {
+                mkdir("uploads", 0777, true);
             }
 
-            $stmt->close();
+            $image = $_FILES['image']['name'];
+            $tmp = $_FILES['image']['tmp_name'];
+            $image_path = "uploads/" . uniqid() . "_" . basename($image);
+
+            if (move_uploaded_file($tmp, $image_path)) {
+
+                // Insert into DB safely including the type
+                $stmt = $conn->prepare("INSERT INTO items (name, category, price, description, image, seller_id, type) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $user_id = intval($_SESSION['user_id']);
+                $stmt->bind_param("ssdssis", $name, $category, $price, $description, $image_path, $user_id, $type);
+
+                if ($stmt->execute()) {
+                    header("Location: index.php");
+                    exit;
+                } else {
+                    $error = "Database error: " . $stmt->error;
+                }
+
+                $stmt->close();
+
+            } else {
+                $error = "Failed to upload image. Check folder permissions.";
+            }
 
         } else {
-            $error = "Failed to upload image. Check folder permissions.";
+            $error = "Please select an image.";
         }
-
-    } else {
-        $error = "Please select an image.";
     }
 }
 ?>
@@ -133,6 +139,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['categ
                 <input type="number" step="0.01" name="price" class="form-control" placeholder="Enter price" required>
             </div>
             <div class="mb-3">
+                <label>Type</label><br>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="type" id="sell" value="sell" checked>
+                    <label class="form-check-label" for="sell">Sell</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="type" id="donate" value="donate">
+                    <label class="form-check-label" for="donate">Donate</label>
+                </div>
+            </div>
+            <div class="mb-3">
                 <label>Description</label>
                 <textarea name="description" class="form-control" rows="3"
                     placeholder="Write short description"></textarea>
@@ -144,6 +161,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['categ
             <button type="submit" class="btn btn-submit mt-3">Add Item</button>
         </form>
     </div>
+
+    <script>
+        const typeRadios = document.querySelectorAll('input[name="type"]');
+        const priceField = document.querySelector('input[name="price"]');
+
+        typeRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'donate' && radio.checked) {
+                    priceField.style.display = 'none';
+                    priceField.value = 0;
+                } else {
+                    priceField.style.display = 'inline-block';
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
