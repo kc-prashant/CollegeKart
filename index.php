@@ -81,7 +81,8 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             margin-top: 8px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
             text-align: left;
-            z-index: 10;
+            z-index: 1000;
+            /* Increase z-index */
         }
 
         .profile-dropdown p {
@@ -188,14 +189,22 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             margin: 0 auto 10px auto;
             animation: bounceInWord 1s forwards;
             animation-delay: 3s;
+            position: relative;
+            /* needed for dropdown positioning */
+            z-index: 10;
+            /* ensure it’s above items */
         }
 
+        /* Items styling */
         .items .card {
             border-radius: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             background-color: #1e1e1e;
             color: #fff;
             transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            z-index: 1;
+            /* lower than dropdown */
         }
 
         .items .card:hover {
@@ -210,61 +219,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             border-top-left-radius: 20px;
             border-top-right-radius: 20px;
             background: #2d2d2d;
-        }
-
-        .items .card .card-title {
-            color: #fff;
-        }
-
-        .items .card p {
-            color: #dfe6e9;
-        }
-
-        .items .card .btn-success {
-            background-color: #6c5ce7;
-            border: none;
-        }
-
-        .items .card .btn-success:hover {
-            background-color: #a29bfe;
-        }
-
-        .items .card .btn-warning {
-            background-color: #fd79a8;
-            border: none;
-        }
-
-        .items .card .btn-warning:hover {
-            background-color: #ffb6c1;
-        }
-
-        .items .card .btn-danger {
-            background-color: #d63031;
-            border: none;
-        }
-
-        .items .card .btn-danger:hover {
-            background-color: #ff7675;
-        }
-
-        .items .card .btn-primary {
-            background-color: #0984e3;
-            border: none;
-        }
-
-        .items .card .btn-primary:hover {
-            background-color: #74b9ff;
-        }
-
-        .items .card .btn-get {
-            background-color: #00b894;
-            border: none;
-            color: #fff;
-        }
-
-        .items .card .btn-get:hover {
-            background-color: #55efc4;
-            color: #000;
         }
 
         footer {
@@ -284,12 +238,8 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             <div class="profile-container">
                 <div class="profile-icon" onclick="toggleProfile()">👤</div>
                 <div class="profile-dropdown" id="profileBox">
-                    <p><strong>
-                            <?= htmlspecialchars($userName) ?>
-                        </strong></p>
-                    <p>
-                        <?= htmlspecialchars($userEmail) ?>
-                    </p>
+                    <p><strong><?= htmlspecialchars($userName) ?></strong></p>
+                    <p><?= htmlspecialchars($userEmail) ?></p>
                     <hr>
                     <a href="auth/logout.php">Logout</a>
                 </div>
@@ -340,11 +290,11 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             <?php
             $type = $_GET['type'] ?? 'all';
             $res = mysqli_query($conn, "
-                SELECT items.*, users.name AS seller_name, users.id AS seller_id
-                FROM items
-                JOIN users ON items.seller_id = users.id
-                ORDER BY items.id DESC
-            ");
+            SELECT items.*, users.name AS seller_name, users.id AS seller_id
+            FROM items
+            JOIN users ON items.seller_id = users.id
+            ORDER BY items.id DESC
+        ");
             if ($res && mysqli_num_rows($res) > 0):
                 while ($p = mysqli_fetch_assoc($res)):
                     $isOwner = $userId && ($isAdmin || $userId == $p['seller_id']);
@@ -355,22 +305,14 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
                         <div class="card">
                             <img src="<?= $p['image'] ?>" class="card-img-top" alt="<?= $p['name'] ?>">
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <?= $p['name'] ?>
-                                </h5>
+                                <h5 class="card-title"><?= $p['name'] ?></h5>
                                 <?php if ($p['type'] === 'sell'): ?>
-                                    <p class="text-muted mb-1">Price: ₹
-                                        <?= $p['price'] ?>
-                                    </p>
+                                    <p class="text-muted mb-1">Price: ₹<?= $p['price'] ?></p>
                                 <?php else: ?>
                                     <p class="text-muted mb-1">Available for Donation</p>
                                 <?php endif; ?>
-                                <p class="small">
-                                    <?= $p['description'] ?>
-                                </p>
-                                <p class="small text-muted">Seller:
-                                    <?= $p['seller_name'] ?>
-                                </p>
+                                <p class="small"><?= $p['description'] ?></p>
+                                <p class="small text-muted">Seller: <?= $p['seller_name'] ?></p>
 
                                 <a href="product_view.php?id=<?= $p['id'] ?>" class="btn btn-success mt-2 me-2">View</a>
 
@@ -405,9 +347,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
     </div>
 
     <footer>
-        <p>©
-            <?= date('Y') ?> College Kart | Built by Prashant and Ayush
-        </p>
+        <p>© <?= date('Y') ?> College Kart | Built by Prashant and Ayush</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
