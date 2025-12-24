@@ -6,7 +6,6 @@ error_reporting(E_ALL);
 session_start();
 include "db.php";
 
-// Check if user is admin
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 $userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['name'] ?? 'User';
@@ -17,41 +16,51 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Clz Store - Buy, Sell & Donate College Essentials</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Kart - Vibrant Marketplace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        /* === GENERAL STYLES === */
+        html {
+            scroll-behavior: smooth;
         }
 
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        /* === HEADER === */
         header {
-            background: linear-gradient(90deg, #4CAF50, #388E3C);
-            color: white;
-            padding: 20px 0;
-            text-align: center;
-            position: relative;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: #fff;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         header h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            margin: 0;
         }
 
         nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
+            color: #fff;
+            margin-left: 20px;
             font-weight: 500;
-            transition: color 0.3s;
         }
 
         nav a:hover {
@@ -59,51 +68,92 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         }
 
         .profile-container {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+            position: relative;
+            cursor: pointer;
         }
 
         .profile-icon {
-            font-size: 26px;
-            cursor: pointer;
+            font-size: 28px;
         }
 
         .profile-dropdown {
             display: none;
             position: absolute;
+            top: 40px;
             right: 0;
             background: #fff;
             color: #000;
-            border-radius: 8px;
-            padding: 12px;
-            width: 200px;
-            margin-top: 8px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            border-radius: 12px;
+            padding: 15px;
+            width: 220px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
             text-align: left;
             z-index: 1000;
-            /* Increase z-index */
+            transition: all 0.3s ease;
         }
 
         .profile-dropdown p {
-            margin: 4px 0;
+            margin: 5px 0;
             font-size: 14px;
         }
 
         .profile-dropdown a {
             color: red;
-            text-decoration: none;
             font-weight: 600;
         }
 
+        /* === HERO === */
         .hero {
+            background: linear-gradient(45deg, rgba(255, 87, 34, 0.7), rgba(255, 193, 7, 0.7)),
+                url('https://images.unsplash.com/photo-1581091012184-4449b3f0cbe0?auto=format&fit=crop&w=1400&q=60') no-repeat center center/cover;
+            color: #fff;
             text-align: center;
-            padding: 50px 20px;
-            background: url('https://images.unsplash.com/photo-1581091012184-4449b3f0cbe0?auto=format&fit=crop&w=1400&q=60') no-repeat center center/cover;
+            padding: 100px 20px 80px;
+        }
+
+        .hero h2 {
+            font-size: 2.6rem;
+            margin-bottom: 20px;
+        }
+
+        .bounce-word {
+            display: inline-block;
+            font-weight: 700;
+            animation: bounceIn 0.8s forwards;
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtext {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s forwards;
+            animation-delay: 1s;
+        }
+
+        .btn-custom {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #fff;
+            border: none;
+            padding: 14px 30px;
+            font-weight: 600;
+            border-radius: 50px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+            background: linear-gradient(135deg, #0072ff, #00c6ff);
             color: #fff;
         }
 
-        @keyframes bounceInWord {
+        /* Animations */
+        @keyframes bounceIn {
             0% {
                 transform: scale(0.3);
                 opacity: 0;
@@ -123,15 +173,9 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             }
         }
 
-        .bounce-word {
-            display: inline-block;
-            color: #9b59b6;
-            animation: bounceInWord 0.8s forwards;
-        }
-
-        @keyframes slideInUp {
+        @keyframes fadeInUp {
             0% {
-                transform: translateY(50px);
+                transform: translateY(20px);
                 opacity: 0;
             }
 
@@ -141,86 +185,98 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             }
         }
 
-        .hero-subtext {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #9b59b6;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            animation: slideInUp 1s ease forwards;
-            animation-delay: 1.8s;
-        }
-
-        .btn-custom {
-            opacity: 0;
-            animation: slideInUp 1s ease forwards;
-            animation-delay: 2.2s;
-            background: linear-gradient(135deg, #ff9800, #ff5722);
-            color: #fff;
-            border: none;
-            padding: 12px 30px;
-            font-weight: 600;
-            border-radius: 30px;
-            box-shadow: 0 6px 15px rgba(255, 87, 34, 0.4);
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-custom:hover {
-            background: linear-gradient(135deg, #ff5722, #ff9800);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 87, 34, 0.6);
-            color: #fff;
-        }
-
+        /* === LATEST ITEMS === */
         #latestHeading {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            background-color: #00b894;
+            gap: 15px;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
             color: #fff;
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 14px 25px;
+            border-radius: 15px;
             font-size: 1.8rem;
             font-weight: 600;
             width: fit-content;
-            margin: 0 auto 10px auto;
-            animation: bounceInWord 1s forwards;
-            animation-delay: 3s;
+            margin: 50px auto 20px auto;
             position: relative;
-            /* needed for dropdown positioning */
             z-index: 10;
-            /* ensure it’s above items */
         }
 
-        /* Items styling */
         .items .card {
             border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            background-color: #1e1e1e;
-            color: #fff;
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-            z-index: 1;
-            /* lower than dropdown */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+            color: #000;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.5s ease-out;
+        }
+
+        .items .card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .items .card:hover {
-            transform: scale(1.03);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
         }
 
         .items .card img {
-            max-height: 200px;
+            max-height: 220px;
             width: 100%;
-            object-fit: contain;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            background: #2d2d2d;
+            object-fit: cover;
         }
 
+        .items .card-body h5 {
+            font-weight: 600;
+        }
+
+        .items .btn-get {
+            background: #6c5ce7;
+            color: #fff;
+            border-radius: 50px;
+            padding: 6px 20px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .items .btn-get:hover {
+            background: #341f97;
+            transform: translateY(-2px);
+        }
+
+        /* FILTER DROPDOWN */
+        .dropdown-menu {
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* FLOATING ADD BUTTON */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            color: #fff;
+            border: none;
+            padding: 18px 22px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* FOOTER */
         footer {
             background: #111;
             color: #fff;
@@ -228,12 +284,34 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             padding: 20px 0;
             margin-top: auto;
         }
+
+        /* RESPONSIVE */
+        @media(max-width:768px) {
+            .hero h2 {
+                font-size: 2rem;
+            }
+
+            .btn-custom {
+                padding: 12px 25px;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            nav {
+                margin-top: 10px;
+            }
+        }
     </style>
 </head>
 
 <body>
 
     <header>
+        <h1>College Kart 🛒</h1>
+
         <?php if ($userId): ?>
             <div class="profile-container">
                 <div class="profile-icon" onclick="toggleProfile()">👤</div>
@@ -244,27 +322,23 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
                     <a href="auth/logout.php">Logout</a>
                 </div>
             </div>
-        <?php endif; ?>
-
-        <h1>Welcome to College Kart 🛒</h1>
-        <nav>
-            <?php if (!$userId): ?>
+        <?php else: ?>
+            <nav>
                 <a href="auth/login.php">Login</a>
                 <a href="auth/signup.php">Sign Up</a>
-            <?php endif; ?>
-        </nav>
+            </nav>
+        <?php endif; ?>
     </header>
 
     <section class="hero">
         <h2>
-            <span class="bounce-word" style="animation-delay: 0s;">Buy</span> |
-            <span class="bounce-word" style="animation-delay: 0.5s;">Sell</span> |
-            <span class="bounce-word" style="animation-delay: 1s;">Donate</span>
+            <span class="bounce-word" style="animation-delay:0s;">Buy</span> |
+            <span class="bounce-word" style="animation-delay:0.5s;">Sell</span> |
+            <span class="bounce-word" style="animation-delay:1s;">Donate</span>
         </h2>
         <p class="hero-subtext">Your one-stop shop for college essentials</p>
-
         <?php if ($userId): ?>
-            <a href="add_item.php" class="btn-custom">Start Donating | Selling </a>
+            <a href="add_item.php" class="btn-custom">Start Donating | Selling</a>
         <?php else: ?>
             <a href="auth/login.php" class="btn-custom">Login to Start Donating | Selling</a>
         <?php endif; ?>
@@ -289,12 +363,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         <div class="row g-4 items">
             <?php
             $type = $_GET['type'] ?? 'all';
-            $res = mysqli_query($conn, "
-            SELECT items.*, users.name AS seller_name, users.id AS seller_id
-            FROM items
-            JOIN users ON items.seller_id = users.id
-            ORDER BY items.id DESC
-        ");
+            $res = mysqli_query($conn, "SELECT items.*, users.name AS seller_name, users.id AS seller_id FROM items JOIN users ON items.seller_id = users.id ORDER BY items.id DESC");
             if ($res && mysqli_num_rows($res) > 0):
                 while ($p = mysqli_fetch_assoc($res)):
                     $isOwner = $userId && ($isAdmin || $userId == $p['seller_id']);
@@ -315,7 +384,6 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
                                 <p class="small text-muted">Seller: <?= $p['seller_name'] ?></p>
 
                                 <a href="product_view.php?id=<?= $p['id'] ?>" class="btn btn-success mt-2 me-2">View</a>
-
                                 <?php if ($isOwner): ?>
                                     <a href="edit_item.php?id=<?= $p['id'] ?>" class="btn btn-warning mt-2 me-2">Edit</a>
                                     <a href="delete_item.php?id=<?= $p['id'] ?>" class="btn btn-danger mt-2 me-2"
@@ -333,9 +401,8 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
                                         </button>
                                     </form>
                                 <?php elseif (!$userId): ?>
-                                    <a href="auth/login.php" class="btn btn-primary mt-2">
-                                        <?= $p['type'] === 'sell' ? 'Login to Buy' : 'Login to Get' ?>
-                                    </a>
+                                    <a href="auth/login.php"
+                                        class="btn btn-primary mt-2"><?= $p['type'] === 'sell' ? 'Login to Buy' : 'Login to Get' ?></a>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -346,8 +413,12 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         </div>
     </div>
 
+    <?php if ($userId): ?>
+        <button class="fab" onclick="location.href='add_item.php'">➕ Add Item</button>
+    <?php endif; ?>
+
     <footer>
-        <p>© <?= date('Y') ?> College Kart | Built by Prashant and Ayush</p>
+        <p>© <?= date('Y') ?> College Kart | Built by Prashant & Ayush</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -356,13 +427,26 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             const box = document.getElementById("profileBox");
             box.style.display = box.style.display === "block" ? "none" : "block";
         }
-
         document.addEventListener("click", function (e) {
             const profile = document.querySelector(".profile-container");
             if (profile && !profile.contains(e.target)) {
                 document.getElementById("profileBox").style.display = "none";
             }
         });
+
+        // Animate cards on scroll with stagger
+        const cards = document.querySelectorAll('.items .card');
+        function revealCards() {
+            const triggerBottom = window.innerHeight * 0.85;
+            cards.forEach((card, i) => {
+                const cardTop = card.getBoundingClientRect().top;
+                if (cardTop < triggerBottom) {
+                    setTimeout(() => { card.classList.add('visible'); }, i * 150);
+                }
+            });
+        }
+        window.addEventListener('scroll', revealCards);
+        window.addEventListener('load', revealCards);
     </script>
 
 </body>
