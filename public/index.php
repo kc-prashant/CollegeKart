@@ -1,9 +1,5 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/db.php';
@@ -24,7 +20,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* === GENERAL STYLES === */
+        /* GENERAL STYLES*/
         html {
             scroll-behavior: smooth;
         }
@@ -105,7 +101,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             font-weight: 600;
         }
 
-        /* === HERO === */
+        /* HERO */
         .hero {
             background: linear-gradient(45deg, rgba(255, 87, 34, 0.7), rgba(255, 193, 7, 0.7)),
                 url('https://images.unsplash.com/photo-1581091012184-4449b3f0cbe0?auto=format&fit=crop&w=1400&q=60') no-repeat center center/cover;
@@ -188,7 +184,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             }
         }
 
-        /* === LATEST ITEMS === */
+        /* LATEST ITEMS*/
         #latestHeading {
             display: flex;
             align-items: center;
@@ -440,7 +436,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             }
         });
 
-        // Animate cards on scroll with stagger
+        // Animate cards on scroll
         const cards = document.querySelectorAll('.items .card');
         function revealCards() {
             const triggerBottom = window.innerHeight * 0.85;

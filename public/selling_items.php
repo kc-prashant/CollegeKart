@@ -14,7 +14,7 @@ $userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['name'] ?? 'User';
 $userEmail = $_SESSION['email'] ?? 'user@email.com';
 
-// Fetch items for sale (type = 'sell') along with seller name
+// Fetch items 
 $stmt = $conn->prepare("
     SELECT items.*, users.name AS seller 
     FROM items 

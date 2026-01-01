@@ -1,9 +1,4 @@
 <?php
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Start session and include dependencies
 session_start();
 require_once __DIR__ . '/../app/config.php';
@@ -28,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['categ
         // Handle image upload
         if (!empty($_FILES['image']['name'])) {
 
-            // Save images in public/uploads (accessible by browser)
-            $uploads_dir = __DIR__ . '/../public/uploads'; // absolute path to public/uploads
+            // Save images in public/uploads
+            $uploads_dir = __DIR__ . '/../public/uploads';
             if (!is_dir($uploads_dir)) {
                 mkdir($uploads_dir, 0777, true);
             }

@@ -2,11 +2,6 @@
 // Start session first
 session_start();
 
-// Enable error reporting (important for debugging)
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Include config, DB, auth
 require_once __DIR__ . '/../../app/config.php';
 require_once __DIR__ . '/../../app/db.php';

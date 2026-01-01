@@ -1,9 +1,4 @@
 <?php
-// Enable full error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 // Include config, DB, and auth check
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/db.php';
@@ -35,7 +30,7 @@ if ($_SESSION['role'] !== 'admin' && $_SESSION['user_id'] != $item['seller_id'])
 
 // Delete the image file if exists
 if (!empty($item['image'])) {
-    $imagePath = __DIR__ . '/' . $item['image']; // Absolute path relative to delete_item.php
+    $imagePath = __DIR__ . '/' . $item['image'];
     if (file_exists($imagePath)) {
         unlink($imagePath);
     }

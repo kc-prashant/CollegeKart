@@ -169,7 +169,7 @@ $isOwner = $userId && $userId == $p['seller_id'];
         <h2 class="mt-3"><?= htmlspecialchars($p['name']) ?></h2>
 
         <?php if ($isDonated): ?>
-            <p class="badge bg-success fs-6">🎁 Donated Item</p>
+            <p class="badge bg-success fs-6">Donated Item</p>
         <?php else: ?>
             <p class="text-muted fs-5">Price: ₹<?= htmlspecialchars($p['price']) ?></p>
         <?php endif; ?>
@@ -181,7 +181,7 @@ $isOwner = $userId && $userId == $p['seller_id'];
         <?php if ($isSold): ?>
 
             <div class="alert alert-danger mt-3">
-                ❌ This item has already been sold
+                This item has already been sold
             </div>
 
         <?php elseif (!$userId): ?>

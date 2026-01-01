@@ -9,8 +9,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: " . BASE_URL . "/auth/login.php");
     exit;
 }
-
-// Optional: role check helper
 function require_admin()
 {
     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
