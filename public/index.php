@@ -20,13 +20,13 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ===== GLOBAL ===== */
+        /* GLOBAL  */
         body {
             font-family: 'Poppins', sans-serif;
             background: #f4f6fb;
         }
 
-        /* ===== HEADER ===== */
+        /*  HEADER  */
         header {
             background: linear-gradient(90deg, #111, #6366f1);
             color: #fff;
@@ -47,7 +47,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             font-weight: 500;
         }
 
-        /* ===== HERO ===== */
+        /*  HERO  */
         .hero {
             background: linear-gradient(135deg, #667eea, #764ba2, #ff758c);
             padding: 110px 20px;
@@ -74,7 +74,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             box-shadow: 0 10px 25px rgba(0, 0, 0, .35);
         }
 
-        /* ===== HERO CARD ===== */
+        /*  HERO CARD  */
         .hero-card {
             background: rgba(255, 255, 255, 0.18);
             backdrop-filter: blur(14px);
@@ -105,7 +105,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             margin: 4px;
         }
 
-        /* ===== LATEST ITEMS ===== */
+        /*  LATEST ITEMS  */
         #latestHeading {
             display: flex;
             justify-content: center;
@@ -120,7 +120,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             margin: 70px auto 25px;
         }
 
-        /* ===== ITEM CARDS (FIXED SIZE) ===== */
+        /*ITEM CARDS */
         .items .card {
             border-radius: 22px;
             overflow: hidden;
@@ -136,12 +136,16 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         .card-img-wrapper {
             height: 220px;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
         }
 
         .card-img-wrapper img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .card-body {
@@ -153,7 +157,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             margin-top: auto;
         }
 
-        /* ===== FAB ===== */
+        /*  FAB  */
         .fab {
             position: fixed;
             bottom: 30px;
@@ -166,7 +170,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
             font-size: 1.3rem;
         }
 
-        /* ===== FOOTER ===== */
+        /*  FOOTER  */
         footer {
             background: #111;
             color: #fff;
@@ -193,7 +197,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         <?php endif; ?>
     </header>
 
-    <!-- ===== HERO ===== -->
+    <!--  HERO  -->
     <section class="hero">
         <div class="container">
             <div class="row align-items-center">
@@ -230,7 +234,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
         </div>
     </section>
 
-    <!-- ===== LATEST ITEMS ===== -->
+    <!--  LATEST ITEMS  -->
     <div class="container my-5">
 
         <div id="latestHeading">
@@ -327,7 +331,7 @@ $userEmail = $_SESSION['email'] ?? 'user@email.com';
 
     <footer>
         <p>©
-            <?= date('Y') ?> College Kart | Built by Prashant & Ayush
+            <?= date('Y') ?> College Kart | Built by Prashant & Aayush
         </p>
     </footer>
 
