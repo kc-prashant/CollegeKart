@@ -3,29 +3,29 @@ session_start();
 require_once __DIR__ . '/../../app/config.php';
 require_once __DIR__ . '/../../app/db.php';
 
-
 $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
     if (empty($email) || empty($password)) {
         $message = "All fields are required!";
     } else {
-        // Prepare statement for security
+
+        // Secure prepared statement
         $stmt = $conn->prepare("SELECT * FROM users WHERE email=?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         $user = $result->fetch_assoc();
 
-        // Verify user and password
         if ($user && password_verify($password, $user['password'])) {
+
+            // Set session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
-
-            //Fix: use $user, not $row
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
 
@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: ../index.php");
             }
             exit;
+
         } else {
             $message = "Invalid email or password!";
         }
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Clz Store</title>
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -113,37 +115,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 500;
         }
 
-        .signup-link {
+        .links {
             margin-top: 15px;
             font-size: 0.95rem;
         }
 
-        .signup-link a {
+        .links a {
             color: #4CAF50;
             text-decoration: none;
             font-weight: 500;
         }
 
-        .signup-link a:hover {
+        .links a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 
 <body>
+
     <div class="form-container">
         <h2>Login</h2>
-        <?php if (!empty($message))
-            echo "<div class='message'>$message</div>"; ?>
+
+        <?php if (!empty($message)): ?>
+            <div class="message">
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
+
         <form method="post" action="">
             <input type="email" name="email" placeholder="Email" required>
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Login</button>
         </form>
-        <div class="signup-link">
+
+        <div class="links">
+            <a href="forgot_password.php">Forgot Password?</a>
+        </div>
+
+        <div class="links">
             Don't have an account? <a href="signup.php">Sign Up</a>
         </div>
     </div>
+
 </body>
 
 </html>
