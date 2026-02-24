@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/db.php';
 
+// Get user info from session
 $userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['name'] ?? 'User';
 ?>
@@ -175,13 +176,13 @@ $userName = $_SESSION['name'] ?? 'User';
             <a href="marketplace.php">Marketplace</a>
 
             <?php if ($userId): ?>
-                <span>👤
+                <a href="profile.php">👤
                     <?= htmlspecialchars($userName) ?>
-                </span>
+                </a>
                 <a href="auth/logout.php">Logout</a>
             <?php else: ?>
                 <a href="auth/login.php">Login</a>
-                <a href="auth/signup.php">Sign Up</a>
+                <a href="auth/register.php">Register</a>
             <?php endif; ?>
         </nav>
     </header>
