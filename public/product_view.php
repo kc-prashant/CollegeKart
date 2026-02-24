@@ -22,11 +22,22 @@ if (mysqli_num_rows($q) == 0) {
 
 $p = mysqli_fetch_assoc($q);
 
-/* Session info */
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 $userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['name'] ?? 'User';
-$userEmail = $_SESSION['email'] ?? 'user@email.com';
+
+/* Fetch logged in user email */
+$userEmail = '';
+if ($userId) {
+    $stmt = mysqli_prepare($conn, "SELECT email FROM users WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "i", $userId);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+    if ($row = mysqli_fetch_assoc($res)) {
+        $userEmail = $row['email'];
+    }
+    mysqli_stmt_close($stmt);
+}
 
 /* Item states */
 $isSold = isset($p['status']) && $p['status'] === 'sold';
@@ -39,7 +50,9 @@ $isOwner = $userId && $userId == $p['seller_id'];
 
 <head>
     <meta charset="UTF-8">
-    <title><?= htmlspecialchars($p['name']) ?> - College Kart</title>
+    <title>
+        <?= htmlspecialchars($p['name']) ?> - College Kart
+    </title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -137,86 +150,154 @@ $isOwner = $userId && $userId == $p['seller_id'];
             <div class="profile-container">
                 <div onclick="toggleProfile()" style="cursor:pointer;font-size:24px;">👤</div>
                 <div class="profile-dropdown" id="profileBox">
-                    <p><strong><?= htmlspecialchars($userName) ?></strong></p>
-                    <p><?= htmlspecialchars($userEmail) ?></p>
+                    <p><strong>
+                            <?= htmlspecialchars($userName) ?>
+                        </strong></p>
+                    <p>
+                        <?= htmlspecialchars($userEmail) ?>
+                    </p>
                     <hr>
                     <a href="auth/logout.php" class="text-danger fw-bold">Logout</a>
                 </div>
             </div>
         <?php endif; ?>
-
         <h1>College Kart 🛒</h1>
-
         <nav>
-            <?php if (!$userId): ?>
-                <a href="auth/login.php">Login</a>
-                <a href="auth/signup.php">Sign Up</a>
-            <?php endif; ?>
+            <a href="index.php">Home</a>
+            <a href="marketplace.php">Marketplace</a>
         </nav>
     </header>
 
     <div class="item-box">
 
         <?php if ($purchaseSuccess): ?>
-            <div class="alert alert-success">
-                ✅ Purchase successful!
-            </div>
-            <a href="index.php" class="btn btn-secondary mb-3">⬅ Back to Store</a>
+            <div class="alert alert-success">✅ Purchase successful!</div>
         <?php endif; ?>
 
         <img src="<?= htmlspecialchars($p['image']) ?>" alt="item image">
 
-        <h2 class="mt-3"><?= htmlspecialchars($p['name']) ?></h2>
+        <h2 class="mt-3">
+            <?= htmlspecialchars($p['name']) ?>
+        </h2>
 
         <?php if ($isDonated): ?>
             <p class="badge bg-success fs-6">Donated Item</p>
         <?php else: ?>
-            <p class="text-muted fs-5">Price: ₹<?= htmlspecialchars($p['price']) ?></p>
+            <p class="text-muted fs-5">Price: ₹
+                <?= htmlspecialchars($p['price']) ?>
+            </p>
         <?php endif; ?>
 
-        <p><?= nl2br(htmlspecialchars($p['description'])) ?></p>
-        <p class="text-muted">Seller: <?= htmlspecialchars($p['seller']) ?></p>
+        <p>
+            <?= nl2br(htmlspecialchars($p['description'])) ?>
+        </p>
+        <p class="text-muted">Seller:
+            <?= htmlspecialchars($p['seller']) ?>
+        </p>
 
-        <!-- ACTION BUTTONS -->
-        <?php if ($isSold): ?>
+        <div class="mt-3">
 
-            <div class="alert alert-danger mt-3">
-                This item has already been sold
-            </div>
+            <a href="index.php" class="btn btn-secondary mb-3">⬅ Back to Store</a>
 
-        <?php elseif (!$userId): ?>
+            <!-- ACTION BUTTONS -->
+            <?php if ($isSold): ?>
+                <div class="alert alert-danger mt-3">This item has already been sold</div>
 
-            <a href="auth/login.php" class="btn-custom">Login to Continue</a>
+            <?php elseif ($p['status'] === 'booked'): ?>
+                <span class="badge bg-warning fs-6">Booked</span>
 
-        <?php elseif ($isOwner): ?>
+            <?php elseif (!$userId): ?>
+                <a href="auth/login.php" class="btn-custom">Login to Continue</a>
 
-            <div class="alert alert-info">
-                ℹ You cannot purchase your own item
-            </div>
+            <?php elseif ($isOwner): ?>
+                <div class="alert alert-info mt-3">ℹ You cannot purchase your own item</div>
 
-        <?php else: ?>
-
-            <form method="post" action="user/action.php">
-                <input type="hidden" name="item_id" value="<?= $p['id'] ?>">
-                <button type="submit" class="btn-custom">
+            <?php else: ?>
+                <!-- BUY BUTTON -->
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#buyModal">
                     <?= $isDonated ? '🎁 Get Item' : '🛒 Buy Now' ?>
                 </button>
-            </form>
+            <?php endif; ?>
 
-        <?php endif; ?>
+        </div>
+    </div>
 
+    <!-- BUY MODAL -->
+    <div class="modal fade" id="buyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Confirm Purchase</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form method="post" action="user/action.php">
+                    <div class="modal-body">
+                        <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
+                        <input type="hidden" name="action_type" value="<?= $isDonated ? 'get' : 'buy' ?>">
+
+                        <h6>Item Details</h6>
+                        <p><strong>Item:</strong>
+                            <?= htmlspecialchars($p['name']) ?>
+                        </p>
+                        <p><strong>Price:</strong>
+                            <?= $isDonated ? 'Free' : '₹' . htmlspecialchars($p['price']) ?>
+                        </p>
+
+                        <hr>
+
+                        <h6>Buyer Details</h6>
+                        <p><strong>Name:</strong>
+                            <?= htmlspecialchars($userName) ?>
+                        </p>
+                        <p><strong>Email:</strong>
+                            <?= htmlspecialchars($userEmail) ?>
+                        </p>
+
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select name="payment_method" class="form-select" required>
+                                <option value="">Select Payment</option>
+                                <option value="Cash">Cash</option>
+                                <option value="eSewa">eSewa</option>
+                                <option value="Khalti">Khalti</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Pickup Location</label>
+                            <input type="text" name="location" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Confirm</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
     </div>
 
     <footer>
-        © <?= date('Y') ?> College Kart | Built by Prashant & Ayush
+        ©
+        <?= date('Y') ?> College Kart | Built by Prashant & Ayush
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         function toggleProfile() {
             const box = document.getElementById("profileBox");
             box.style.display = box.style.display === "block" ? "none" : "block";
         }
-
         document.addEventListener("click", function (e) {
             const profile = document.querySelector(".profile-container");
             if (profile && !profile.contains(e.target)) {

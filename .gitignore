@@ -23,6 +23,7 @@ cache/
 
 # Ignore user uploads folder
 uploads/
+review/
 
 # Config / secrets
 db.php

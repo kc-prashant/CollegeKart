@@ -182,7 +182,7 @@ $userName = $_SESSION['name'] ?? 'User';
                 <a href="auth/logout.php">Logout</a>
             <?php else: ?>
                 <a href="auth/login.php">Login</a>
-                <a href="auth/register.php">Register</a>
+                <a href="auth/signup.php">Register</a>
             <?php endif; ?>
         </nav>
     </header>
@@ -248,7 +248,7 @@ $userName = $_SESSION['name'] ?? 'User';
 
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="testimonial-img" alt="Student">
+                        <img src="review/aayush.png" class="testimonial-img" alt="Student">
                         <h5 class="testimonial-name">Aayush Thapaliya</h5>
                         <div class="testimonial-role">BCA</div>
                         <p class="testimonial-text">
@@ -260,8 +260,7 @@ $userName = $_SESSION['name'] ?? 'User';
 
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="testimonial-img"
-                            alt="Student">
+                        <img src="review/prashant.png" class="testimonial-img" alt="Student">
                         <h5 class="testimonial-name">Prashant Kc</h5>
                         <div class="testimonial-role">BCA Student</div>
                         <p class="testimonial-text">
@@ -273,7 +272,7 @@ $userName = $_SESSION['name'] ?? 'User';
 
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <img src="https://randomuser.me/api/portraits/men/55.jpg" class="testimonial-img" alt="Student">
+                        <img src="review/nayan.png" class="testimonial-img" alt="Student">
                         <h5 class="testimonial-name">Nayan Karki</h5>
                         <div class="testimonial-role">B.Sc IT</div>
                         <p class="testimonial-text">
