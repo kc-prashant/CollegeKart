@@ -1,126 +1,145 @@
 <?php
-session_start();
 require_once __DIR__ . '/../../app/config.php';
 require_once __DIR__ . '/../../app/db.php';
 
-// Session info
-$userId = $_SESSION['user_id'] ?? 0;
-$userName = $_SESSION['name'] ?? 'User';
-$userEmail = $_SESSION['email'] ?? 'user@email.com';
+$message = "";
 
-$res = mysqli_query($conn, "
-    SELECT items.*, users.name AS seller 
-    FROM items 
-    JOIN users ON items.seller_id = users.id 
-    WHERE items.type='donate' 
-    ORDER BY items.id DESC
-");
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+
+    if (empty($email) || empty($password)) {
+        $message = "All fields are required!";
+    } else {
+        // Check if email already exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            $message = "Email already registered!";
+        } else {
+            // Hash password
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+            // Extract name from email
+            $name = explode('@', $email)[0];
+
+            // Insert user with name, email, password, role
+            $stmt_insert = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')");
+            $stmt_insert->bind_param("sss", $name, $email, $hashed_password);
+
+            if ($stmt_insert->execute()) {
+                header("Location: login.php");
+                exit;
+            } else {
+                $message = "Error: " . $stmt_insert->error;
+            }
+
+            $stmt_insert->close();
+        }
+        $stmt->close();
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Donated Items - College Kart</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Signup | Clz Store</title>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
         }
 
+        .form-container {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            width: 350px;
+            text-align: center;
+        }
+
         h2 {
-            margin-bottom: 30px;
-            font-weight: 600;
-            color: #333;
+            margin-bottom: 25px;
+            color: #4CAF50;
+            font-size: 2rem;
         }
 
-        .items .card {
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            background-color: #1e1e1e;
-            color: #fff;
-            transition: transform 0.3s, box-shadow 0.3s;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .items .card:hover {
-            transform: scale(1.03);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
-        }
-
-        .items .card img {
-            max-height: 200px;
+        input[type=email],
+        input[type=password] {
             width: 100%;
-            object-fit: contain;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            background: #2d2d2d;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
         }
 
-        .items .card .card-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 15px;
-        }
-
-        .items .card .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 10px;
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #ff9800, #ff5722);
             color: #fff;
-        }
-
-        .items .card p {
-            color: #dfe6e9;
-            margin: 5px 0;
-        }
-
-        .btn-success {
-            background-color: #6c5ce7;
             border: none;
-            width: 100%;
-            padding: 10px 0;
-            border-radius: 10px;
+            border-radius: 25px;
+            font-size: 1rem;
             font-weight: 600;
-            transition: 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .btn-success:hover {
-            background-color: #a29bfe;
+        button:hover {
+            background: linear-gradient(135deg, #ff5722, #ff9800);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 87, 34, 0.4);
+        }
+
+        .message {
+            color: red;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .login-link {
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 
 <body>
-    <div class="container my-5">
-        <h2 class="text-center">Donated Items</h2>
-        <div class="row g-4 items">
-            <?php while ($item = mysqli_fetch_assoc($res)): ?>
-                <div class="col-md-4 d-flex">
-                    <div class="card w-100">
-                        <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['name']) ?>">
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div>
-                                <h5 class="card-title"><?= htmlspecialchars($item['name']) ?></h5>
-                                <p>Available for Donation</p>
-                                <p>Seller: <?= htmlspecialchars($item['seller']) ?></p>
-                            </div>
-                            <form method="post" action="user/action.php">
-                                <input type="hidden" name="product_id" value="<?= $item['id'] ?>">
-                                <input type="hidden" name="action_type" value="get">
-                                <button type="submit" class="btn btn-success mt-2">Get</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            <?php endwhile; ?>
+    <div class="form-container">
+        <h2>Create Account</h2>
+        <?php if (!empty($message))
+            echo "<div class='message'>$message</div>"; ?>
+        <form method="post" action="">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="login.php">Login</a>
         </div>
     </div>
 </body>
