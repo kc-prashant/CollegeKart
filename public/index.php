@@ -248,8 +248,8 @@ $userName = $_SESSION['name'] ?? 'User';
                 <div class="col-md-4">
                     <div class="testimonial-card">
                         <img src="https://randomuser.me/api/portraits/men/32.jpg" class="testimonial-img" alt="Student">
-                        <h5 class="testimonial-name">Rahul Sharma</h5>
-                        <div class="testimonial-role">B.Tech CSE</div>
+                        <h5 class="testimonial-name">Aayush Thapaliya</h5>
+                        <div class="testimonial-role">BCA</div>
                         <p class="testimonial-text">
                             College Kart helped me sell my old books easily.
                             Super smooth experience and trusted campus buyers!
@@ -261,8 +261,8 @@ $userName = $_SESSION['name'] ?? 'User';
                     <div class="testimonial-card">
                         <img src="https://randomuser.me/api/portraits/women/44.jpg" class="testimonial-img"
                             alt="Student">
-                        <h5 class="testimonial-name">Priya Verma</h5>
-                        <div class="testimonial-role">MBA Student</div>
+                        <h5 class="testimonial-name">Prashant Kc</h5>
+                        <div class="testimonial-role">BCA Student</div>
                         <p class="testimonial-text">
                             I found second-hand lab equipment at a great price.
                             It’s amazing to have a marketplace just for students.
@@ -273,7 +273,7 @@ $userName = $_SESSION['name'] ?? 'User';
                 <div class="col-md-4">
                     <div class="testimonial-card">
                         <img src="https://randomuser.me/api/portraits/men/55.jpg" class="testimonial-img" alt="Student">
-                        <h5 class="testimonial-name">Aayush Singh</h5>
+                        <h5 class="testimonial-name">Nayan Karki</h5>
                         <div class="testimonial-role">B.Sc IT</div>
                         <p class="testimonial-text">
                             I donated my old notes through College Kart.

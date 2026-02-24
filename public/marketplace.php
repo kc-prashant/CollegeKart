@@ -99,6 +99,12 @@ $userName = $_SESSION['name'] ?? 'User';
             flex-direction: column;
         }
 
+        .badge-status {
+            font-size: 0.8rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+
         /* FAB */
         .fab {
             position: fixed;
@@ -142,16 +148,15 @@ $userName = $_SESSION['name'] ?? 'User';
         </nav>
     </header>
 
-    <!-- MARKETPLACE SECTION -->
     <div class="container my-5">
         <div class="section-title">
             <span>Marketplace</span>
             <div class="dropdown">
                 <button class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">Filter</button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="?type=sell#marketplace">Selling</a></li>
-                    <li><a class="dropdown-item" href="?type=donate#marketplace">Donated</a></li>
-                    <li><a class="dropdown-item" href="?type=all#marketplace">All</a></li>
+                    <li><a class="dropdown-item" href="?type=sell">Selling</a></li>
+                    <li><a class="dropdown-item" href="?type=donate">Donated</a></li>
+                    <li><a class="dropdown-item" href="?type=all">All</a></li>
                 </ul>
             </div>
         </div>
@@ -162,26 +167,30 @@ $userName = $_SESSION['name'] ?? 'User';
 
             $res = mysqli_query(
                 $conn,
-                "SELECT items.*, users.name seller_name, users.id seller_id
-         FROM items 
-         JOIN users ON items.seller_id = users.id
-         ORDER BY items.id DESC"
+                "SELECT items.*, users.name seller_name 
+ FROM items 
+ JOIN users ON items.seller_id = users.id
+ ORDER BY items.id DESC"
             );
 
             if ($res && mysqli_num_rows($res) > 0):
                 while ($p = mysqli_fetch_assoc($res)):
+
                     if ($type != 'all' && $p['type'] != $type)
                         continue;
+
                     $isOwner = $userId && ($isAdmin || $userId == $p['seller_id']);
                     ?>
+
                     <div class="col-md-4">
                         <div class="card h-100">
                             <div class="card-img-wrapper">
-                                <img src="<?= $p['image'] ?>" alt="<?= $p['name'] ?>">
+                                <img src="<?= $p['image'] ?>" alt="<?= htmlspecialchars($p['name']) ?>">
                             </div>
+
                             <div class="card-body">
                                 <h5>
-                                    <?= $p['name'] ?>
+                                    <?= htmlspecialchars($p['name']) ?>
                                 </h5>
 
                                 <?php if ($p['type'] == 'sell'): ?>
@@ -193,13 +202,14 @@ $userName = $_SESSION['name'] ?? 'User';
                                 <?php endif; ?>
 
                                 <p class="small">
-                                    <?= $p['description'] ?>
+                                    <?= htmlspecialchars($p['description']) ?>
                                 </p>
                                 <p class="small text-muted">Seller:
-                                    <?= $p['seller_name'] ?>
+                                    <?= htmlspecialchars($p['seller_name']) ?>
                                 </p>
 
                                 <div class="mt-auto">
+
                                     <a href="product_view.php?id=<?= $p['id'] ?>" class="btn btn-success btn-sm">View</a>
 
                                     <?php if ($isOwner): ?>
@@ -209,22 +219,36 @@ $userName = $_SESSION['name'] ?? 'User';
                                             onclick="return confirm('Delete item?')">Delete</a>
                                     <?php endif; ?>
 
-                                    <?php if ($userId && $userId != $p['seller_id']): ?>
-                                        <form method="post" action="user/action.php" class="d-inline">
-                                            <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
-                                            <input type="hidden" name="action_type"
-                                                value="<?= $p['type'] == 'sell' ? 'buy' : 'get' ?>">
-                                            <button class="btn btn-primary btn-sm">
-                                                <?= $p['type'] == 'sell' ? 'Buy' : 'Get' ?>
-                                            </button>
-                                        </form>
-                                    <?php elseif (!$userId): ?>
-                                        <a href="auth/login.php" class="btn btn-primary btn-sm">Login</a>
+
+                                    <?php if ($p['status'] == 'available'): ?>
+
+                                        <?php if ($userId && $userId != $p['seller_id']): ?>
+                                            <form method="post" action="user/action.php" class="d-inline">
+                                                <input type="hidden" name="product_id" value="<?= $p['id'] ?>">
+                                                <input type="hidden" name="action_type" value="<?= $p['type'] == 'sell' ? 'buy' : 'get' ?>">
+                                                <button class="btn btn-primary btn-sm">
+                                                    <?= $p['type'] == 'sell' ? 'Buy' : 'Get' ?>
+                                                </button>
+                                            </form>
+                                        <?php elseif (!$userId): ?>
+                                            <a href="auth/login.php" class="btn btn-primary btn-sm">Login</a>
+                                        <?php endif; ?>
+
+                                    <?php elseif ($p['status'] == 'booked'): ?>
+
+                                        <span class="badge bg-warning badge-status">Booked</span>
+
+                                    <?php elseif ($p['status'] == 'completed'): ?>
+
+                                        <span class="badge bg-success badge-status">Sold</span>
+
                                     <?php endif; ?>
+
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 <?php endwhile; else: ?>
                 <p class="text-center text-muted">No items found</p>
             <?php endif; ?>

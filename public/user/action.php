@@ -8,7 +8,7 @@ require_once __DIR__ . '/../../app/db.php';
 require_once __DIR__ . '/../../app/auth_check.php';
 
 // Default variables
-$backLink = BASE_URL . '/index.php';
+$backLink = BASE_URL . '/marketplace.php';
 $message = "";
 $title = "";
 $error = false;
@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
 
     $productId = intval($_POST['product_id']);
     $actionType = $_POST['action_type'];
+    $buyerId = $_SESSION['user_id'];
 
     // Fetch item from DB
     $stmt = $conn->prepare("SELECT * FROM items WHERE id=?");
@@ -30,18 +31,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
         $message = "Item not found.";
         $error = true;
     } else {
+
         $item = $res->fetch_assoc();
 
-        if ($actionType === 'buy') {
-            $title = "Purchase Successful";
-            $message = "You bought <strong>" . htmlspecialchars($item['name']) . "</strong> successfully.";
-        } elseif ($actionType === 'get') {
-            $title = "Success!";
-            $message = "You have successfully claimed <strong>" . htmlspecialchars($item['name']) . "</strong>.";
-        } else {
-            $title = "Error";
-            $message = "Invalid action.";
+        // ❌ Prevent buying own item
+        if ($item['seller_id'] == $buyerId) {
+            $title = "Action Not Allowed";
+            $message = "You cannot buy or claim your own item.";
             $error = true;
+        }
+
+        // ❌ Prevent duplicate booking
+        elseif ($item['status'] !== 'available') {
+            $title = "Already Booked";
+            $message = "This item has already been booked or sold.";
+            $error = true;
+        }
+
+        // ✅ Process Buy / Get
+        else {
+
+            // Insert transaction
+            $insert = $conn->prepare("
+                INSERT INTO transactions 
+                (item_id, buyer_id, seller_id, type, status) 
+                VALUES (?, ?, ?, ?, 'booked')
+            ");
+
+            $insert->bind_param(
+                "iiis",
+                $item['id'],
+                $buyerId,
+                $item['seller_id'],
+                $item['type']
+            );
+
+            if ($insert->execute()) {
+
+                // Update item status to booked
+                $update = $conn->prepare("UPDATE items SET status='booked' WHERE id=?");
+                $update->bind_param("i", $item['id']);
+                $update->execute();
+
+                if ($actionType === 'buy') {
+                    $title = "Purchase Successful";
+                    $message = "You successfully booked <strong>" . htmlspecialchars($item['name']) . "</strong>.";
+                } elseif ($actionType === 'get') {
+                    $title = "Success!";
+                    $message = "You successfully claimed <strong>" . htmlspecialchars($item['name']) . "</strong>.";
+                } else {
+                    $title = "Success";
+                    $message = "Transaction completed successfully.";
+                }
+
+            } else {
+                $title = "Database Error";
+                $message = "Could not record transaction. Try again.";
+                $error = true;
+            }
         }
     }
 
@@ -58,9 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <?= htmlspecialchars($title) ?> - Clz Store
-    </title>
+    <title><?= htmlspecialchars($title) ?> - Clz Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -112,13 +157,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
 
 <body>
     <div class="message-box">
-        <h2>
-            <?= htmlspecialchars($title) ?>
-        </h2>
-        <p>
-            <?= $message ?>
-        </p>
-        <a href="<?= $backLink ?>" class="btn">Back to Store</a>
+        <h2><?= htmlspecialchars($title) ?></h2>
+        <p><?= $message ?></p>
+        <a href="<?= $backLink ?>" class="btn">Back to Marketplace</a>
     </div>
 </body>
 
