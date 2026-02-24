@@ -90,18 +90,56 @@ $userName = $_SESSION['name'] ?? 'User';
             transform: translateY(-8px);
         }
 
-        /* TESTIMONIAL */
-        #testimonials {
-            padding: 80px 20px;
-            background: #fff;
+        /* TESTIMONIAL SECTION */
+        .testimonial-section {
+            padding: 80px 0;
+            background: #f4f6fb;
+        }
+
+        .testimonial-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 50px;
         }
 
         .testimonial-card {
-            background: #f4f6fb;
+            background: #fff;
             padding: 30px;
-            border-radius: 22px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
             text-align: center;
+            transition: 0.3s;
+            height: 100%;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .testimonial-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid #6366f1;
+        }
+
+        .testimonial-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .testimonial-role {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .testimonial-text {
+            font-size: 0.95rem;
+            color: #555;
         }
 
         /* ABOUT */
@@ -201,25 +239,49 @@ $userName = $_SESSION['name'] ?? 'User';
     </section>
 
     <!-- WHAT STUDENTS SAY -->
-    <section id="testimonials">
+    <section class="testimonial-section">
         <div class="container">
-            <h2 class="text-center mb-5 fw-bold">What Students Say</h2>
+            <h2 class="testimonial-title">What Students Say 💬</h2>
+
             <div class="row g-4">
+
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <p>"Best place to buy second-hand books!"</p><strong>Rahul</strong>
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="testimonial-img" alt="Student">
+                        <h5 class="testimonial-name">Rahul Sharma</h5>
+                        <div class="testimonial-role">B.Tech CSE</div>
+                        <p class="testimonial-text">
+                            College Kart helped me sell my old books easily.
+                            Super smooth experience and trusted campus buyers!
+                        </p>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <p>"Selling items here is super easy."</p><strong>Ananya</strong>
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" class="testimonial-img"
+                            alt="Student">
+                        <h5 class="testimonial-name">Priya Verma</h5>
+                        <div class="testimonial-role">MBA Student</div>
+                        <p class="testimonial-text">
+                            I found second-hand lab equipment at a great price.
+                            It’s amazing to have a marketplace just for students.
+                        </p>
                     </div>
                 </div>
+
                 <div class="col-md-4">
                     <div class="testimonial-card">
-                        <p>"Safe and trusted student marketplace."</p><strong>Arjun</strong>
+                        <img src="https://randomuser.me/api/portraits/men/55.jpg" class="testimonial-img" alt="Student">
+                        <h5 class="testimonial-name">Aayush Singh</h5>
+                        <div class="testimonial-role">B.Sc IT</div>
+                        <p class="testimonial-text">
+                            I donated my old notes through College Kart.
+                            Love the idea of helping juniors while decluttering!
+                        </p>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
