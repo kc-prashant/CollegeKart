@@ -184,6 +184,8 @@ $userName = $_SESSION['name'] ?? 'User';
                 <a href="auth/login.php">Login</a>
                 <a href="auth/signup.php">Register</a>
             <?php endif; ?>
+
+
         </nav>
     </header>
 

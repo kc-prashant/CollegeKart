@@ -7,8 +7,35 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-// Include DB connection
 require_once __DIR__ . '/../../app/db.php';
+
+$currentAdminId = $_SESSION['user_id'];
+
+/* ===== HANDLE ACTIONS ===== */
+if (isset($_GET['action']) && isset($_GET['id'])) {
+
+    $id = (int) $_GET['id'];
+    $action = $_GET['action'];
+
+    // Prevent admin from modifying themselves
+    if ($id !== $currentAdminId) {
+
+        if ($action === 'make_admin') {
+            mysqli_query($conn, "UPDATE users SET role='admin' WHERE id=$id");
+        }
+
+        if ($action === 'remove_admin') {
+            mysqli_query($conn, "UPDATE users SET role='user' WHERE id=$id");
+        }
+
+        if ($action === 'delete') {
+            mysqli_query($conn, "DELETE FROM users WHERE id=$id");
+        }
+    }
+
+    header("Location: dashboard.php");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +52,7 @@ require_once __DIR__ . '/../../app/db.php';
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 50px auto;
             background: #fff;
             padding: 30px;
@@ -39,11 +66,19 @@ require_once __DIR__ . '/../../app/db.php';
 
         a {
             text-decoration: none;
-            color: #007bff;
+            font-weight: 500;
         }
 
-        a:hover {
-            text-decoration: underline;
+        .btn-delete {
+            color: red;
+        }
+
+        .btn-admin {
+            color: green;
+        }
+
+        .btn-remove {
+            color: orange;
         }
 
         .table {
@@ -56,50 +91,101 @@ require_once __DIR__ . '/../../app/db.php';
         .table td {
             border: 1px solid #ccc;
             padding: 10px;
-            text-align: left;
+            text-align: center;
         }
 
         .table th {
             background: #4CAF50;
             color: white;
         }
+
+        .top-links {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
+
         <h1>Admin Dashboard</h1>
-        <p>Welcome, Admin! <a href="../auth/logout.php">Logout</a></p>
+
+        <div class="top-links">
+            Welcome, Admin |
+            <a href="../index.php">Go to Marketplace</a> |
+            <a href="../auth/logout.php">Logout</a>
+        </div>
 
         <h2>Registered Users</h2>
+
         <table class="table">
             <tr>
                 <th>ID</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Action</th>
+                <th>Admin Control</th>
+                <th>Delete User</th>
             </tr>
+
             <?php
             $result = mysqli_query($conn, "SELECT id, email, role FROM users ORDER BY id DESC");
+
             if ($result) {
                 while ($user = mysqli_fetch_assoc($result)) {
-                    echo "<tr>
-                        <td>{$user['id']}</td>
-                        <td>{$user['email']}</td>
-                        <td>{$user['role']}</td>
-                        <td>
-                            <a href='delete_user.php?id={$user['id']}' onclick=\"return confirm('Delete this user?')\">Delete</a>
-                        </td>
-                    </tr>";
+
+                    echo "<tr>";
+                    echo "<td>{$user['id']}</td>";
+                    echo "<td>{$user['email']}</td>";
+                    echo "<td>{$user['role']}</td>";
+
+                    // ===== ADMIN CONTROL COLUMN =====
+                    echo "<td>";
+
+                    if ($user['id'] != $currentAdminId) {
+
+                        if ($user['role'] !== 'admin') {
+                            echo "<a class='btn-admin' 
+                              href='?action=make_admin&id={$user['id']}' 
+                              onclick=\"return confirm('Make this user admin?')\">
+                              Make Admin
+                              </a>";
+                        } else {
+                            echo "<a class='btn-remove' 
+                              href='?action=remove_admin&id={$user['id']}' 
+                              onclick=\"return confirm('Remove admin role?')\">
+                              Remove Admin
+                              </a>";
+                        }
+
+                    } else {
+                        echo "You";
+                    }
+
+                    echo "</td>";
+
+                    // ===== DELETE COLUMN =====
+                    echo "<td>";
+
+                    if ($user['id'] != $currentAdminId) {
+                        echo "<a class='btn-delete' 
+                          href='?action=delete&id={$user['id']}' 
+                          onclick=\"return confirm('Delete this user?')\">
+                          Delete
+                          </a>";
+                    } else {
+                        echo "-";
+                    }
+
+                    echo "</td>";
+
+                    echo "</tr>";
                 }
             } else {
-                echo "<tr><td colspan='4'>Failed to fetch users: " . mysqli_error($conn) . "</td></tr>";
+                echo "<tr><td colspan='5'>Failed to fetch users</td></tr>";
             }
             ?>
         </table>
 
-        <h2>Products</h2>
-        <p><a href="../index.php">Go to Products Page</a></p>
     </div>
 </body>
 

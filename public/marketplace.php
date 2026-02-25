@@ -4,6 +4,7 @@ require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/db.php';
 
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+
 $userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['name'] ?? 'User';
 
@@ -100,6 +101,20 @@ if ($userId) {
                     <?= htmlspecialchars($userName) ?>
                 </a>
                 <a href="auth/logout.php" class="text-warning">Logout</a>
+                <?php if ($isAdmin) { ?>
+                    <div style="margin:15px 0;">
+                        <a href="admin/dashboard.php" style="
+                                background:#4CAF50;
+                                color:white;
+                                padding:8px 15px;
+                                border-radius:6px;
+                                text-decoration:none;
+                                font-weight:500;
+                           ">
+                            ← Back to Admin Dashboard
+                        </a>
+                    </div>
+                <?php } ?>
             <?php else: ?>
                 <a href="auth/login.php">Login</a>
                 <a href="auth/signup.php">Sign Up</a>
