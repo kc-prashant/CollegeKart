@@ -112,7 +112,8 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 
         <div class="top-links">
             Welcome, Admin |
-            <a href="../index.php">Go to Marketplace</a> |
+            <a href="../marketplace.php">Marketplace</a> |
+            <a href="user_purchase.php">User Purchase</a> |
             <a href="../auth/logout.php">Logout</a>
         </div>
 
