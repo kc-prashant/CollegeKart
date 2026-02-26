@@ -184,28 +184,27 @@ if ($userId) {
                                         onclick="return confirm('Delete item?')">Delete</a>
                                 <?php endif; ?>
 
-                                <!-- BUY / GET -->
-                                <?php if ($p['status'] == 'available'): ?>
-
-                                    <?php if ($userId && $userId != $p['seller_id']): ?>
-
-                                        <button class="btn btn-primary btn-sm openBuyModal" data-id="<?= $p['id'] ?>"
-                                            data-name="<?= htmlspecialchars($p['name']) ?>" data-price="<?= $p['price'] ?>"
-                                            data-type="<?= $p['type'] ?>" data-bs-toggle="modal" data-bs-target="#buyModal">
-                                            <?= $p['type'] == 'sell' ? 'Buy' : 'Get' ?>
-                                        </button>
-
-                                    <?php elseif (!$userId): ?>
-                                        <a href="auth/login.php" class="btn btn-primary btn-sm">Login</a>
-                                    <?php endif; ?>
-
-                                <?php elseif ($p['status'] == 'booked'): ?>
-                                    <span class="badge bg-warning badge-status">Booked</span>
-
-                                <?php elseif ($p['status'] == 'completed'): ?>
-                                    <span class="badge bg-success badge-status">Sold</span>
+                              <!-- BUY / GET -->
+                            <?php if ($p['status'] == 'available'): ?>
+                            
+                                <?php if ($userId && $userId != $p['seller_id'] && !$isAdmin): ?>
+                                    <!-- Only normal users can see this button -->
+                                    <button class="btn btn-primary btn-sm openBuyModal" data-id="<?= $p['id'] ?>"
+                                        data-name="<?= htmlspecialchars($p['name']) ?>" data-price="<?= $p['price'] ?>" data-type="<?= $p['type'] ?>"
+                                        data-bs-toggle="modal" data-bs-target="#buyModal">
+                                        <?= $p['type'] == 'sell' ? 'Buy' : 'Get' ?>
+                                    </button>
+                            
+                                <?php elseif (!$userId): ?>
+                                    <a href="auth/login.php" class="btn btn-primary btn-sm">Login</a>
                                 <?php endif; ?>
-
+                            
+                            <?php elseif ($p['status'] == 'booked'): ?>
+                                <span class="badge bg-warning badge-status">Booked</span>
+                            
+                            <?php elseif ($p['status'] == 'completed'): ?>
+                                <span class="badge bg-success badge-status">Sold</span>
+                            <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -253,8 +252,8 @@ if ($userId) {
                             <select name="payment_method" class="form-select" required>
                                 <option value="">Select Payment</option>
                                 <option value="Cash">Cash</option>
-                                <option value="eSewa">eSewa</option>
-                                <option value="Khalti">Khalti</option>
+                             <!--   <option value="eSewa">eSewa</option>
+                                <option value="Khalti">Khalti</option> -->
                             </select>
                         </div>
 
@@ -265,7 +264,7 @@ if ($userId) {
 
                         <div class="mb-3">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="phone" class="form-control" required>
+                            <input type="text" name="phone" class="form-control" required pattern="\d{10}" title="Phone number must be 10 digits" >
                         </div>
 
                     </div>

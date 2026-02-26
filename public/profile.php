@@ -17,6 +17,40 @@ if (!$userId) {
     exit;
 }
 
+/* ================= HANDLE RETURN REQUEST ================= */
+if (isset($_GET['return_id'])) {
+
+    $returnId = (int) $_GET['return_id'];
+
+    $stmtCheck = mysqli_prepare(
+        $conn,
+        "SELECT * FROM transactions WHERE id = ? AND buyer_id = ?"
+    );
+    mysqli_stmt_bind_param($stmtCheck, "ii", $returnId, $userId);
+    mysqli_stmt_execute($stmtCheck);
+    $resCheck = mysqli_stmt_get_result($stmtCheck);
+    $transaction = mysqli_fetch_assoc($resCheck);
+    mysqli_stmt_close($stmtCheck);
+
+    if ($transaction) {
+        $purchaseTime = strtotime($transaction['created_at']);
+        $daysPassed = (time() - $purchaseTime) / (60 * 60 * 24);
+
+        if ($transaction['status'] === 'booked' && $daysPassed <= 7) {
+            $stmtUpdate = mysqli_prepare(
+                $conn,
+                "UPDATE transactions SET status = 'return_requested' WHERE id = ?"
+            );
+            mysqli_stmt_bind_param($stmtUpdate, "i", $returnId);
+            mysqli_stmt_execute($stmtUpdate);
+            mysqli_stmt_close($stmtUpdate);
+
+            header("Location: profile.php?msg=Return request submitted successfully");
+            exit;
+        }
+    }
+}
+
 /* ================= FETCH USER INFO ================= */
 $stmtUser = mysqli_prepare($conn, "SELECT email FROM users WHERE id = ?");
 mysqli_stmt_bind_param($stmtUser, "i", $userId);
@@ -27,12 +61,10 @@ mysqli_stmt_close($stmtUser);
 
 $userEmail = $userData['email'] ?? '';
 
-/* ================= FETCH LISTINGS WITH BUYER ================= */
+/* ================= FETCH MY LISTINGS ================= */
 $listings = [];
 $stmtListings = mysqli_prepare($conn, "
-    SELECT i.*, 
-           u.name AS buyer_name,
-           u.email AS buyer_email
+    SELECT i.*, u.name AS buyer_name, u.email AS buyer_email
     FROM items i
     LEFT JOIN transactions t ON t.item_id = i.id
     LEFT JOIN users u ON t.buyer_id = u.id
@@ -41,8 +73,8 @@ $stmtListings = mysqli_prepare($conn, "
 ");
 mysqli_stmt_bind_param($stmtListings, "i", $userId);
 mysqli_stmt_execute($stmtListings);
-$res = mysqli_stmt_get_result($stmtListings);
-while ($row = mysqli_fetch_assoc($res)) {
+$resListings = mysqli_stmt_get_result($stmtListings);
+while ($row = mysqli_fetch_assoc($resListings)) {
     $listings[] = $row;
 }
 mysqli_stmt_close($stmtListings);
@@ -58,8 +90,8 @@ $stmtTransactions = mysqli_prepare($conn, "
 ");
 mysqli_stmt_bind_param($stmtTransactions, "i", $userId);
 mysqli_stmt_execute($stmtTransactions);
-$res = mysqli_stmt_get_result($stmtTransactions);
-while ($row = mysqli_fetch_assoc($res)) {
+$resTransactions = mysqli_stmt_get_result($stmtTransactions);
+while ($row = mysqli_fetch_assoc($resTransactions)) {
     $transactions[] = $row;
 }
 mysqli_stmt_close($stmtTransactions);
@@ -72,7 +104,6 @@ mysqli_stmt_close($stmtTransactions);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - College Kart</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -112,16 +143,16 @@ mysqli_stmt_close($stmtTransactions);
             color: #fff;
         }
 
-        .status-sold {
-            background: #dc2626;
-        }
-
         .status-available {
             background: #16a34a;
         }
 
         .status-booked {
             background: #d97706;
+        }
+
+        .status-return_requested {
+            background: #dc2626;
         }
 
         footer {
@@ -141,32 +172,23 @@ mysqli_stmt_close($stmtTransactions);
 
 <body>
 
-    <!-- ================= HEADER ================= -->
     <header>
         <h3>College Kart 🛒</h3>
         <nav>
             <a href="index.php">Home</a>
             <a href="marketplace.php">Marketplace</a>
-            <a href="profile.php">👤
-                <?= htmlspecialchars($userName) ?>
-            </a>
+            <a href="profile.php">👤 <?= htmlspecialchars($userName) ?></a>
             <a href="auth/logout.php">Logout</a>
         </nav>
     </header>
 
     <div class="container py-4">
 
-        <h4>Welcome,
-            <?= htmlspecialchars($userName) ?> 👋
-        </h4>
+        <h4>Welcome, <?= htmlspecialchars($userName) ?> 👋</h4>
 
         <div class="card-box">
-            <p><strong>Name:</strong>
-                <?= htmlspecialchars($userName) ?>
-            </p>
-            <p><strong>Email:</strong>
-                <?= htmlspecialchars($userEmail) ?>
-            </p>
+            <p><strong>Name:</strong> <?= htmlspecialchars($userName) ?></p>
+            <p><strong>Email:</strong> <?= htmlspecialchars($userEmail) ?></p>
         </div>
 
         <!-- ================= MY LISTINGS ================= -->
@@ -175,28 +197,22 @@ mysqli_stmt_close($stmtTransactions);
         <?php if ($listings): ?>
             <?php foreach ($listings as $l): ?>
                 <div class="card-box">
-                    <strong>
-                        <?= htmlspecialchars($l['name']) ?>
-                    </strong>
-                    <span class="status-pill status-<?= strtolower($l['status']) ?>">
+                    <strong><?= htmlspecialchars($l['name']) ?></strong>
+                    <span class="status-pill status-<?= htmlspecialchars($l['status']) ?>">
                         <?= ucfirst($l['status']) ?>
                     </span>
 
                     <?php if ($l['price'] > 0): ?>
                         <div class="mt-2 text-primary fw-bold">
-                            Rs.
-                            <?= number_format($l['price'], 2) ?>
+                            Rs. <?= number_format($l['price'], 2) ?>
                         </div>
                     <?php endif; ?>
 
-                    <!-- BUYER DETAILS -->
                     <?php if (!empty($l['buyer_name'])): ?>
                         <div class="mt-3 p-3 bg-light rounded">
                             <strong>Buyer Details:</strong><br>
-                            Name:
-                            <?= htmlspecialchars($l['buyer_name']) ?><br>
-                            Email:
-                            <?= htmlspecialchars($l['buyer_email']) ?>
+                            Name: <?= htmlspecialchars($l['buyer_name']) ?><br>
+                            Email: <?= htmlspecialchars($l['buyer_email']) ?>
                         </div>
                     <?php endif; ?>
 
@@ -210,23 +226,39 @@ mysqli_stmt_close($stmtTransactions);
         <!-- ================= PURCHASES ================= -->
         <h4 class="section-title">Items I Purchased</h4>
 
+        <?php if (isset($_GET['msg'])): ?>
+            <div class="alert alert-success">
+                <?= htmlspecialchars($_GET['msg']) ?>
+            </div>
+        <?php endif; ?>
+
         <?php if ($transactions): ?>
             <?php foreach ($transactions as $t): ?>
                 <div class="card-box">
-                    <strong>
-                        <?= htmlspecialchars($t['item_name']) ?>
-                    </strong>
 
-                    <div class="mt-2">
-                        <button class="btn btn-primary btn-sm viewReceiptBtn" data-id="<?= $t['id'] ?>"
-                            data-item="<?= htmlspecialchars($t['item_name']) ?>" data-type="<?= htmlspecialchars($t['type']) ?>"
-                            data-status="<?= htmlspecialchars($t['status']) ?>"
-                            data-price="<?= number_format($t['price'], 2) ?>"
-                            data-date="<?= date('d M Y, H:i', strtotime($t['created_at'])) ?>" data-bs-toggle="modal"
-                            data-bs-target="#receiptModal">
-                            View Receipt
-                        </button>
+                    <strong><?= htmlspecialchars($t['item_name']) ?></strong>
+
+                    <div class="mt-2 mb-2">
+                        <span class="badge bg-secondary"><?= ucfirst($t['status']) ?></span>
                     </div>
+
+                    <?php
+                    $purchaseTime = strtotime($t['created_at']);
+                    $daysPassed = (time() - $purchaseTime) / (60 * 60 * 24);
+                    ?>
+
+                    <?php if ($t['status'] === 'booked' && $daysPassed <= 7): ?>
+                        <a href="profile.php?return_id=<?= $t['id'] ?>" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to return this item?')">
+                            Return Item
+                        </a>
+                    <?php elseif ($t['status'] === 'return_requested'): ?>
+                        <span class="text-warning fw-bold">Return Requested</span>
+                    <?php endif; ?>
+
+                    <button class="btn btn-primary btn-sm mt-2 viewReceiptBtn" ...>
+                        View Receipt
+                    </button>
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
@@ -272,8 +304,7 @@ mysqli_stmt_close($stmtTransactions);
     </div>
 
     <footer>
-        ©
-        <?= date('Y') ?> College Kart | Built by Prashant & Aayush
+        © <?= date('Y') ?> College Kart | Built by Prashant & Aayush
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -281,12 +312,12 @@ mysqli_stmt_close($stmtTransactions);
     <script>
         document.querySelectorAll('.viewReceiptBtn').forEach(btn => {
             btn.addEventListener('click', function () {
-                rId.textContent = this.dataset.id;
-                rItem.textContent = this.dataset.item;
-                rType.textContent = this.dataset.type;
-                rStatus.textContent = this.dataset.status;
-                rPrice.textContent = this.dataset.price;
-                rDate.textContent = this.dataset.date;
+                document.getElementById("rId").textContent = this.dataset.id;
+                document.getElementById("rItem").textContent = this.dataset.item;
+                document.getElementById("rType").textContent = this.dataset.type;
+                document.getElementById("rStatus").textContent = this.dataset.status;
+                document.getElementById("rPrice").textContent = this.dataset.price;
+                document.getElementById("rDate").textContent = this.dataset.date;
             });
         });
 
