@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../app/db.php';
 
 $transactions = [];
 
-// Fetch ALL transactions (no WHERE buyer_id filter)
+// Fetch ALL transactions with item & buyer info
 $stmt = mysqli_prepare($conn, "
     SELECT t.*, 
            i.name AS item_name, 
@@ -34,20 +34,21 @@ mysqli_stmt_close($stmt);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <title>All Transactions | Admin</title>
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             background: #f4f6f9;
         }
 
         .container {
             width: 1100px;
             margin: 40px auto;
-            background: white;
+            background: #fff;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
@@ -75,16 +76,36 @@ mysqli_stmt_close($stmt);
             color: white;
         }
 
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .status-booked {
+            background: #d97706;
+        }
+
+        .status-cancelled {
+            background: #dc2626;
+        }
+
+        .status-completed {
+            background: #16a34a;
+        }
+
         .top-links a {
             margin-right: 15px;
             text-decoration: none;
             font-weight: bold;
+            color: #333;
         }
     </style>
 </head>
 
 <body>
-
     <div class="container">
 
         <h1>All Purchase Transactions</h1>
@@ -103,6 +124,7 @@ mysqli_stmt_close($stmt);
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Total</th>
+                <th>Status</th>
                 <th>Date</th>
             </tr>
 
@@ -113,20 +135,40 @@ mysqli_stmt_close($stmt);
                             <?= $t['id'] ?>
                         </td>
                         <td>
-                            <?= $t['buyer_email'] ?>
+                            <?= htmlspecialchars($t['buyer_email']) ?>
                         </td>
                         <td>
-                            <?= $t['item_name'] ?>
+                            <?= htmlspecialchars($t['item_name']) ?>
                         </td>
                         <td>Rs.
-                            <?= $t['price'] ?>
+                            <?= number_format($t['price'], 2) ?>
                         </td>
                         <td>
                             <?= $t['quantity'] ?? 1 ?>
                         </td>
+                        <td>Rs.
+                            <?= number_format(($t['quantity'] ?? 1) * $t['price'], 2) ?>
+                        </td>
                         <td>
-                            Rs.
-                            <?= ($t['quantity'] ?? 1) * $t['price'] ?>
+                            <?php
+                            $statusClass = '';
+                            switch ($t['status']) {
+                                case 'booked':
+                                    $statusClass = 'status-booked';
+                                    break;
+                                case 'cancelled':
+                                    $statusClass = 'status-cancelled';
+                                    break;
+                                case 'completed':
+                                    $statusClass = 'status-completed';
+                                    break;
+                                default:
+                                    $statusClass = 'status-booked';
+                            }
+                            ?>
+                            <span class="status-pill <?= $statusClass ?>">
+                                <?= ucfirst($t['status']) ?>
+                            </span>
                         </td>
                         <td>
                             <?= $t['created_at'] ?>
@@ -135,14 +177,12 @@ mysqli_stmt_close($stmt);
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="7">No transactions found</td>
+                    <td colspan="8">No transactions found</td>
                 </tr>
             <?php endif; ?>
 
         </table>
-
     </div>
-
 </body>
 
 </html>
