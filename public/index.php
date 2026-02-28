@@ -119,8 +119,8 @@ $userName = $_SESSION['name'] ?? 'User';
         }
 
         .testimonial-img {
-            width: 90px;
-            height: 90px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 20px;
@@ -184,6 +184,8 @@ $userName = $_SESSION['name'] ?? 'User';
                 <a href="auth/login.php">Login</a>
                 <a href="auth/signup.php">Register</a>
             <?php endif; ?>
+
+
 
 
         </nav>
@@ -280,6 +282,18 @@ $userName = $_SESSION['name'] ?? 'User';
                         <p class="testimonial-text">
                             I donated my old notes through College Kart.
                             Love the idea of helping juniors while decluttering!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <img src="review/sangam.png" class="testimonial-img" alt="Student">
+                        <h5 class="testimonial-name">Sangam Bista</h5>
+                        <div class="testimonial-role">Student of Acturial Science</div>
+                        <p class="testimonial-text">
+                            College Kart made it so easy to find affordable textbooks.
+                            I saved a lot and got to connect with fellow students!
                         </p>
                     </div>
                 </div>

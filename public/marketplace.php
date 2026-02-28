@@ -110,7 +110,7 @@ if ($userId) {
                             border-radius:6px;
                             text-decoration:none;
                             font-weight:500;">
-                            ← Back to Admin Dashboard
+                            ← Dashboard
                         </a>
                     </div>
                 <?php } ?>
