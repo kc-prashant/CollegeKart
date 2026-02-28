@@ -17,7 +17,7 @@ if (!$userId) {
     exit;
 }
 
-/* ================= HANDLE CANCEL BOOKING ================= */
+/* HANDLE CANCEL BOOKING  */
 if (isset($_GET['cancel_id'])) {
 
     $cancelId = (int) $_GET['cancel_id'];
@@ -67,7 +67,7 @@ if (isset($_GET['cancel_id'])) {
     }
 }
 
-/* ================= FETCH USER INFO ================= */
+/*  FETCH USER INFO  */
 $stmtUser = mysqli_prepare($conn, "SELECT email FROM users WHERE id = ?");
 mysqli_stmt_bind_param($stmtUser, "i", $userId);
 mysqli_stmt_execute($stmtUser);
@@ -77,7 +77,7 @@ mysqli_stmt_close($stmtUser);
 
 $userEmail = $userData['email'] ?? '';
 
-/* ================= FETCH MY LISTINGS ================= */
+/* FETCH MY LISTINGS */
 $listings = [];
 $stmtListings = mysqli_prepare($conn, "
     SELECT i.*, u.name AS buyer_name, u.email AS buyer_email
@@ -95,7 +95,7 @@ while ($row = mysqli_fetch_assoc($resListings)) {
 }
 mysqli_stmt_close($stmtListings);
 
-/* ================= FETCH PURCHASES ================= */
+/* FETCH PURCHASES  */
 $transactions = [];
 $stmtTransactions = mysqli_prepare($conn, "
     SELECT t.*, i.name AS item_name, i.price
@@ -221,7 +221,7 @@ mysqli_stmt_close($stmtTransactions);
             </p>
         </div>
 
-        <!-- ================= MY LISTINGS ================= -->
+        <!-- MY LISTINGS -->
         <h4 class="section-title">My Listings</h4>
 
         <?php if ($listings): ?>
@@ -256,8 +256,8 @@ mysqli_stmt_close($stmtTransactions);
         <?php else: ?>
             <p>No listings yet.</p>
         <?php endif; ?>
+        <!--  PURCHASES  -->
 
-        <!-- ================= PURCHASES ================= -->
         <h4 class="section-title">Items I Purchased</h4>
 
         <?php if ($transactions): ?>
@@ -299,7 +299,7 @@ mysqli_stmt_close($stmtTransactions);
             <p>No purchases yet.</p>
         <?php endif; ?>
 
-        <!-- ================= RECEIPT MODAL ================= -->
+        <!--  RECEIPT MODAL  -->
         <div class="modal fade" id="receiptModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">

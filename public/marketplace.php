@@ -104,13 +104,12 @@ if ($userId) {
                 <?php if ($isAdmin) { ?>
                     <div style="margin:15px 0;">
                         <a href="admin/dashboard.php" style="
-                                background:#4CAF50;
-                                color:white;
-                                padding:8px 15px;
-                                border-radius:6px;
-                                text-decoration:none;
-                                font-weight:500;
-                           ">
+                            background:#4CAF50;
+                            color:white;
+                            padding:8px 15px;
+                            border-radius:6px;
+                            text-decoration:none;
+                            font-weight:500;">
                             ← Back to Admin Dashboard
                         </a>
                     </div>
@@ -126,17 +125,26 @@ if ($userId) {
 
         <div class="section-title">Marketplace</div>
 
+        <!-- ✅ ADD ITEM BUTTON -->
+        <?php if ($userId): ?>
+            <div class="text-end mb-4">
+                <a href="<?= ACTION_URL ?>add_item.php" class="btn btn-primary">
+                    + Add Item
+                </a>
+            </div>
+        <?php endif; ?>
+
         <div class="row g-4">
 
             <?php
             $type = $_GET['type'] ?? 'all';
 
             $res = mysqli_query($conn, "
-    SELECT items.*, users.name seller_name 
-    FROM items 
-    JOIN users ON items.seller_id = users.id
-    ORDER BY items.id DESC
-");
+            SELECT items.*, users.name seller_name 
+            FROM items 
+            JOIN users ON items.seller_id = users.id
+            ORDER BY items.id DESC
+        ");
 
             if ($res && mysqli_num_rows($res) > 0):
                 while ($p = mysqli_fetch_assoc($res)):
@@ -173,10 +181,8 @@ if ($userId) {
 
                             <div class="mt-auto">
 
-                                <!-- VIEW BUTTON (KEPT) -->
                                 <a href="product_view.php?id=<?= $p['id'] ?>" class="btn btn-success btn-sm">View</a>
 
-                                <!-- OWNER OPTIONS (KEPT) -->
                                 <?php if ($isOwner): ?>
                                     <a href="<?= ACTION_URL ?>edit_item.php?id=<?= $p['id'] ?>"
                                         class="btn btn-warning btn-sm">Edit</a>
@@ -184,27 +190,26 @@ if ($userId) {
                                         onclick="return confirm('Delete item?')">Delete</a>
                                 <?php endif; ?>
 
-                              <!-- BUY / GET -->
-                            <?php if ($p['status'] == 'available'): ?>
-                            
-                                <?php if ($userId && $userId != $p['seller_id'] && !$isAdmin): ?>
-                                    <!-- Only normal users can see this button -->
-                                    <button class="btn btn-primary btn-sm openBuyModal" data-id="<?= $p['id'] ?>"
-                                        data-name="<?= htmlspecialchars($p['name']) ?>" data-price="<?= $p['price'] ?>" data-type="<?= $p['type'] ?>"
-                                        data-bs-toggle="modal" data-bs-target="#buyModal">
-                                        <?= $p['type'] == 'sell' ? 'Buy' : 'Get' ?>
-                                    </button>
-                            
-                                <?php elseif (!$userId): ?>
-                                    <a href="auth/login.php" class="btn btn-primary btn-sm">Login</a>
+                                <?php if ($p['status'] == 'available'): ?>
+
+                                    <?php if ($userId && $userId != $p['seller_id'] && !$isAdmin): ?>
+                                        <button class="btn btn-primary btn-sm openBuyModal" data-id="<?= $p['id'] ?>"
+                                            data-name="<?= htmlspecialchars($p['name']) ?>" data-price="<?= $p['price'] ?>"
+                                            data-type="<?= $p['type'] ?>" data-bs-toggle="modal" data-bs-target="#buyModal">
+                                            <?= $p['type'] == 'sell' ? 'Buy' : 'Get' ?>
+                                        </button>
+
+                                    <?php elseif (!$userId): ?>
+                                        <a href="auth/login.php" class="btn btn-primary btn-sm">Login</a>
+                                    <?php endif; ?>
+
+                                <?php elseif ($p['status'] == 'booked'): ?>
+                                    <span class="badge bg-warning badge-status">Booked</span>
+
+                                <?php elseif ($p['status'] == 'completed'): ?>
+                                    <span class="badge bg-success badge-status">Sold</span>
                                 <?php endif; ?>
-                            
-                            <?php elseif ($p['status'] == 'booked'): ?>
-                                <span class="badge bg-warning badge-status">Booked</span>
-                            
-                            <?php elseif ($p['status'] == 'completed'): ?>
-                                <span class="badge bg-success badge-status">Sold</span>
-                            <?php endif; ?>
+
                             </div>
                         </div>
                     </div>
@@ -217,7 +222,7 @@ if ($userId) {
     </div>
 
 
-    <!-- ================= BUY MODAL ================= -->
+    <!-- BUY MODAL -->
     <div class="modal fade" id="buyModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -252,8 +257,6 @@ if ($userId) {
                             <select name="payment_method" class="form-select" required>
                                 <option value="">Select Payment</option>
                                 <option value="Cash">Cash</option>
-                             <!--   <option value="eSewa">eSewa</option>
-                                <option value="Khalti">Khalti</option> -->
                             </select>
                         </div>
 
@@ -264,7 +267,8 @@ if ($userId) {
 
                         <div class="mb-3">
                             <label class="form-label">Phone Number</label>
-                            <input type="text" name="phone" class="form-control" required pattern="\d{10}" title="Phone number must be 10 digits" >
+                            <input type="text" name="phone" class="form-control" required pattern="\d{10}"
+                                title="Phone number must be 10 digits">
                         </div>
 
                     </div>
