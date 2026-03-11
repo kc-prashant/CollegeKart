@@ -68,5 +68,5 @@ if (!$stmt->execute()) {
 }
 
 //Redirect to home
-header("Location: " . BASE_URL . "/index.php");
+header("Location: " . BASE_URL . "/marketplace.php");
 exit();

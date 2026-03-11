@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['categ
 
                 if ($stmt->execute()) {
                     // Redirect to homepage
-                    header("Location: " . BASE_URL . "/index.php");
+                    header("Location: " . BASE_URL . "/marketplace.php");
                     exit();
                 } else {
                     $error = "Database error: " . $stmt->error;

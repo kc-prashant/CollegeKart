@@ -293,7 +293,7 @@ $userName = $_SESSION['name'] ?? 'User';
                         <div class="testimonial-role">Student of Acturial Science</div>
                         <p class="testimonial-text">
                             College Kart made it so easy to find affordable textbooks.
-                            I saved a lot and got to connect with fellow students!
+                            I saved a lot and got to connect with fellow students!  
                         </p>
                     </div>
                 </div>

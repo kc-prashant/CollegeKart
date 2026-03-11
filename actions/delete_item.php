@@ -42,7 +42,7 @@ $stmtDel->bind_param("i", $id);
 
 if ($stmtDel->execute()) {
     // Redirect to selling items page
-    header("Location: " . BASE_URL . "/index.php");
+    header("Location: " . BASE_URL . "/marketplace.php");
     exit();
 } else {
     die("Database error: " . $stmtDel->error);
