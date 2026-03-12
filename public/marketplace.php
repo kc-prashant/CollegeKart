@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/db.php';
 
+
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
 $userId = $_SESSION['user_id'] ?? 0;
