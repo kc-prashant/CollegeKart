@@ -125,7 +125,7 @@ if ($userId) {
 
         <div class="section-title">Marketplace</div>
 
-        <!-- ✅ ADD ITEM BUTTON -->
+        <!-- ADD ITEM BUTTON -->
         <?php if ($userId && !$isAdmin): ?>
             <div class="text-end mb-4">
                 <a href="<?= ACTION_URL ?>add_item.php" class="btn btn-primary">

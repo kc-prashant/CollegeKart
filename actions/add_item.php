@@ -2,7 +2,7 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-// Start session and include dependencies
+// Start session 
 session_start();
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/db.php';
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['categ
     $category = trim($_POST['category']);
     $price = floatval($_POST['price']);
     $description = trim($_POST['description']);
-    $type = $_POST['type']; // 'sell' or 'donate'
+    $type = $_POST['type']; // 'sell or donate
     $seller_id = $_SESSION['user_id'];
 
     if (!in_array($type, ['sell', 'donate'])) {

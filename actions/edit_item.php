@@ -17,7 +17,7 @@ if (!$result || $result->num_rows === 0) {
 
 $row = $result->fetch_assoc();
 
-// Check if current user is admin OR the seller
+// Check if  admin OR the seller
 if ($_SESSION['role'] !== 'admin' && $_SESSION['user_id'] != $row['seller_id']) {
     die("Access denied. You cannot edit this item.");
 }

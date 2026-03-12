@@ -11,7 +11,7 @@ require_once __DIR__ . '/../../app/db.php';
 
 $currentAdminId = $_SESSION['user_id'];
 
-/* ===== HANDLE ACTIONS ===== */
+/*  HANDLE ACTIONS  */
 if (isset($_GET['action']) && isset($_GET['id'])) {
 
     $id = (int) $_GET['id'];
@@ -139,7 +139,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
                     echo "<td>{$user['email']}</td>";
                     echo "<td>{$user['role']}</td>";
 
-                    // ===== ADMIN CONTROL COLUMN =====
+                    //  ADMIN CONTROL COLUMN 
                     echo "<td>";
 
                     if ($user['id'] != $currentAdminId) {
@@ -164,7 +164,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
 
                     echo "</td>";
 
-                    // ===== DELETE COLUMN =====
+                    // DELETE COLUMN 
                     echo "<td>";
 
                     if ($user['id'] != $currentAdminId) {
