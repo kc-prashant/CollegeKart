@@ -197,7 +197,7 @@ $isOwner = $userId && $userId == $p['seller_id'];
 
         <div class="mt-3">
 
-            <a href="index.php" class="btn btn-secondary mb-3">⬅ Back to Store</a>
+            <a href="marketplace.php" class="btn btn-secondary mb-3">⬅ Back to Store</a>
 
             <!-- ACTION BUTTONS -->
             <?php if ($isSold): ?>
