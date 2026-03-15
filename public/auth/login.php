@@ -17,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = "All fields are required!";
     } else {
 
-        // Secure prepared statement
         $stmt = $conn->prepare("SELECT * FROM users WHERE email=?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -26,13 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user && password_verify($password, $user['password'])) {
 
-            // Set session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['email'] = $user['email'];
 
-            // Redirect based on role
             if ($user['role'] === 'admin') {
                 header("Location: ../admin/dashboard.php");
             } else {
@@ -56,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Clz Store</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
         body {
@@ -82,20 +80,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 2rem;
         }
 
-        input[type=email],
-        input[type=password] {
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
             width: 100%;
-            padding: 12px 15px;
-            margin: 10px 0;
+            padding: 12px 1px 12px 15px;
+            /* extra right padding for eye icon */
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 1rem;
         }
 
+        .input-group .bi {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            font-size: 1.1rem;
+        }
+
         button {
             width: 100%;
             padding: 12px;
-            margin-top: 15px;
+            margin-top: 10px;
             background: linear-gradient(135deg, #ff9800, #ff5722);
             color: #fff;
             border: none;
@@ -147,19 +159,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post" action="">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
+
+            <div class="input-group">
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required id="password">
+                <i class="bi bi-eye-slash" id="togglePassword"></i>
+            </div>
+
             <button type="submit">Login</button>
         </form>
 
-        <div class="links">
+        <div class="links mt-2">
             <a href="forgot_password.php">Forgot Password?</a>
         </div>
 
-        <div class="links">
+        <div class="links mt-1">
             Don't have an account? <a href="signup.php">Sign Up</a>
         </div>
     </div>
+
+    <script>
+        const togglePassword = document.querySelector("#togglePassword");
+        const password = document.querySelector("#password");
+
+        togglePassword.addEventListener("click", function () {
+            const type = password.getAttribute("type") === "password" ? "text" : "password";
+            password.setAttribute("type", type);
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+    </script>
 
 </body>
 

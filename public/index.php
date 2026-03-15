@@ -175,6 +175,7 @@ $userName = $_SESSION['name'] ?? 'User';
             <a href="index.php">Home</a>
             <a href="marketplace.php">Marketplace</a>
 
+
             <?php if ($userId): ?>
                 <a href="profile.php">👤
                     <?= htmlspecialchars($userName) ?>
