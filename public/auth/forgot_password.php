@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
 
             $token = bin2hex(random_bytes(32));
-            $expiry = date("Y-m-d H:i:s", strtotime("+15 minutes"));
+            $expiry = date("Y-m-d H:i:s", strtotime("+5 minutes"));
 
             $stmt = $conn->prepare("UPDATE users SET reset_token=?, token_expiry=? WHERE email=?");
             $stmt->bind_param("sss", $token, $expiry, $email);

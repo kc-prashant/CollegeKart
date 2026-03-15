@@ -1,3 +1,3 @@
 <?php
-define('BASE_URL', '/CLZ-PROJECT-REDONE/public');
-define('ACTION_URL', '/CLZ-PROJECT-REDONE/actions/');
+define('BASE_URL', '/CLZ_PROJECT/public');
+define('ACTION_URL', '/CLZ_PROJECT/actions/');
