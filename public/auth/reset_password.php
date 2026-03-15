@@ -50,6 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password | Clz Store</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
         body {
@@ -76,19 +77,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 2rem;
         }
 
-        input[type=password] {
+        .input-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
             width: 100%;
-            padding: 12px 15px;
-            margin: 10px 0;
+            padding: 12px 1px 12px 15px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 1rem;
         }
 
+        .input-group .bi {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+            font-size: 1.1rem;
+        }
+
         button {
             width: 100%;
             padding: 12px;
-            margin-top: 15px;
+            margin-top: 10px;
             background: linear-gradient(135deg, #ff9800, #ff5722);
             color: #fff;
             border: none;
@@ -133,15 +148,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="form-container">
         <h2>Reset Password</h2>
 
-            <?php if (!empty($message)): ?>
+        <?php if (!empty($message)): ?>
             <div class="message">
-                <?php echo $message; ?>
-                    </div>
+                <?= htmlspecialchars($message) ?>
+            </div>
         <?php endif; ?>
 
         <form method="post">
-            <input type="password" name="password" placeholder="New Password" required>
-            <input type="password" name="confirm" placeholder="Confirm Password" required>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="New Password" required id="password">
+                <i class="bi bi-eye-slash" id="togglePassword"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="confirm" placeholder="Confirm Password" required id="confirmPassword">
+                <i class="bi bi-eye-slash" id="toggleConfirm"></i>
+            </div>
+
             <button type="submit">Reset Password</button>
         </form>
 
@@ -149,6 +172,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="login.php">Back to Login</a>
         </div>
     </div>
+
+    <script>
+        const togglePassword = document.querySelector("#togglePassword");
+        const password = document.querySelector("#password");
+
+        togglePassword.addEventListener("click", function () {
+            const type = password.getAttribute("type") === "password" ? "text" : "password";
+            password.setAttribute("type", type);
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+
+        const toggleConfirm = document.querySelector("#toggleConfirm");
+        const confirmPassword = document.querySelector("#confirmPassword");
+
+        toggleConfirm.addEventListener("click", function () {
+            const type = confirmPassword.getAttribute("type") === "password" ? "text" : "password";
+            confirmPassword.setAttribute("type", type);
+            this.classList.toggle("bi-eye");
+            this.classList.toggle("bi-eye-slash");
+        });
+    </script>
 
 </body>
 

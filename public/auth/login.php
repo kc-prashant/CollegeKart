@@ -88,7 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .input-group input {
             width: 100%;
             padding: 12px 1px 12px 15px;
-            /* extra right padding for eye icon */
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 1rem;
