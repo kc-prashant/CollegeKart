@@ -112,7 +112,7 @@ mysqli_stmt_close($stmt);
 
         <div class="top-links">
             <a href="dashboard.php">Dashboard</a> |
-            <a href="../index.php">Marketplace</a> |
+            <a href="../marketplace.php">Marketplace</a> |
             <a href="../auth/logout.php">Logout</a>
         </div>
 

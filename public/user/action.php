@@ -1,5 +1,4 @@
 <?php
-// Start session first
 session_start();
 
 // Include config, DB, auth
@@ -7,96 +6,127 @@ require_once __DIR__ . '/../../app/config.php';
 require_once __DIR__ . '/../../app/db.php';
 require_once __DIR__ . '/../../app/auth_check.php';
 
-// Default variables
 $backLink = BASE_URL . '/marketplace.php';
 $message = "";
 $title = "";
 $error = false;
 
-// Validate POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST['action_type'])) {
 
     $productId = intval($_POST['product_id']);
     $actionType = $_POST['action_type'];
     $buyerId = $_SESSION['user_id'];
 
-    // Fetch item from DB
-    $stmt = $conn->prepare("SELECT * FROM items WHERE id=?");
-    $stmt->bind_param("i", $productId);
-    $stmt->execute();
-    $res = $stmt->get_result();
+    $phone = trim($_POST['phone'] ?? '');
+    $location = trim($_POST['location'] ?? '');
+    $paymentMethod = trim($_POST['payment_method'] ?? '');
 
-    if (!$res || $res->num_rows === 0) {
-        $title = "Error";
-        $message = "Item not found.";
+    /* Server-side phone validation */
+    if (!preg_match('/^[0-9]{10}$/', $phone)) {
+        $title = "Invalid Phone";
+        $message = "Phone number must be exactly 10 digits.";
         $error = true;
-    } else {
+    }
 
-        $item = $res->fetch_assoc();
+    if (!$error) {
 
-        // ❌ Prevent buying own item
-        if ($item['seller_id'] == $buyerId) {
-            $title = "Action Not Allowed";
-            $message = "You cannot buy or claim your own item.";
+        /* Fetch item */
+        $stmt = $conn->prepare("SELECT * FROM items WHERE id=?");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        if (!$res || $res->num_rows === 0) {
+
+            $title = "Error";
+            $message = "Item not found.";
             $error = true;
-        }
 
-        // ❌ Prevent duplicate booking
-        elseif ($item['status'] !== 'available') {
-            $title = "Already Booked";
-            $message = "This item has already been booked or sold.";
-            $error = true;
-        }
+        } else {
 
-        // ✅ Process Buy / Get
-        else {
+            $item = $res->fetch_assoc();
 
-            // Insert transaction
-            $insert = $conn->prepare("
-                INSERT INTO transactions 
-                (item_id, buyer_id, seller_id, type, status) 
-                VALUES (?, ?, ?, ?, 'booked')
-            ");
+            /* Prevent buying own item */
+            if ($item['seller_id'] == $buyerId) {
 
-            $insert->bind_param(
-                "iiis",
-                $item['id'],
-                $buyerId,
-                $item['seller_id'],
-                $item['type']
-            );
+                $title = "Action Not Allowed";
+                $message = "You cannot buy or claim your own item.";
+                $error = true;
 
-            if ($insert->execute()) {
+            }
 
-                // Update item status to booked
-                $update = $conn->prepare("UPDATE items SET status='booked' WHERE id=?");
-                $update->bind_param("i", $item['id']);
-                $update->execute();
+            /* Prevent duplicate booking */ elseif ($item['status'] !== 'available') {
 
-                if ($actionType === 'buy') {
-                    $title = "Purchase Successful";
-                    $message = "You successfully booked <strong>" . htmlspecialchars($item['name']) . "</strong>.";
-                } elseif ($actionType === 'get') {
-                    $title = "Success!";
-                    $message = "You successfully claimed <strong>" . htmlspecialchars($item['name']) . "</strong>.";
-                } else {
-                    $title = "Success";
-                    $message = "Transaction completed successfully.";
-                }
+                $title = "Already Booked";
+                $message = "This item has already been booked or sold.";
+                $error = true;
 
             } else {
-                $title = "Database Error";
-                $message = "Could not record transaction. Try again.";
-                $error = true;
+
+                /* Insert transaction */
+
+                $insert = $conn->prepare("
+                    INSERT INTO transactions
+                    (item_id, buyer_id, seller_id, type, phone, location, payment_method, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'booked')
+                ");
+
+                $insert->bind_param(
+                    "iiissss",
+                    $item['id'],
+                    $buyerId,
+                    $item['seller_id'],
+                    $item['type'],
+                    $phone,
+                    $location,
+                    $paymentMethod
+                );
+
+                if ($insert->execute()) {
+
+                    /* Update item status */
+
+                    $update = $conn->prepare("UPDATE items SET status='booked' WHERE id=?");
+                    $update->bind_param("i", $item['id']);
+                    $update->execute();
+
+                    if ($actionType === 'buy') {
+
+                        $title = "Purchase Successful";
+                        $message = "You successfully booked <strong>" . htmlspecialchars($item['name']) . "</strong>.";
+
+                    } elseif ($actionType === 'get') {
+
+                        $title = "Success!";
+                        $message = "You successfully claimed <strong>" . htmlspecialchars($item['name']) . "</strong>.";
+
+                    } else {
+
+                        $title = "Success";
+                        $message = "Transaction completed successfully.";
+
+                    }
+
+                } else {
+
+                    $title = "Database Error";
+                    $message = "Could not record transaction. Try again.";
+                    $error = true;
+
+                }
+
             }
         }
     }
 
 } else {
+
     $title = "Error";
     $message = "Invalid request.";
     $error = true;
+
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -105,8 +135,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title) ?> - Clz Store</title>
+
+    <title>
+        <?= htmlspecialchars($title) ?> - College Kart
+    </title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body {
             background: #f0f4f8;
@@ -130,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
             font-weight: 700;
             margin-bottom: 20px;
             color:
-                <?= $error ? '#e74c3c' : '#2dce89' ?>
+                <?= $error ? "'#e74c3c'" : "'#2dce89'" ?>
             ;
         }
 
@@ -156,11 +191,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
 </head>
 
 <body>
+
     <div class="message-box">
-        <h2><?= htmlspecialchars($title) ?></h2>
-        <p><?= $message ?></p>
+
+        <h2>
+            <?= htmlspecialchars($title) ?>
+        </h2>
+
+        <p>
+            <?= $message ?>
+        </p>
+
         <a href="<?= $backLink ?>" class="btn">Back to Marketplace</a>
+
     </div>
+
 </body>
 
 </html>
