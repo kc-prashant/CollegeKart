@@ -260,8 +260,8 @@ $isOwner = $userId && $userId == $p['seller_id'];
                             <select name="payment_method" class="form-select" required>
                                 <option value="">Select Payment</option>
                                 <option value="Cash">Cash</option>
-                                <option value="eSewa">eSewa</option>
-                                <option value="Khalti">Khalti</option>
+                                <!--      <option value="eSewa">eSewa</option>
+                                <option value="Khalti">Khalti</option>  -->
                             </select>
                         </div>
 
